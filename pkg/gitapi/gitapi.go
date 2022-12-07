@@ -37,8 +37,10 @@ func GetList() {
 		fmt.Printf("Error: %v\n", err)
 	}
 
+	i := 0
 	for _, repo := range repos {
-		fmt.Println(repo["name"])
+		i++
+		fmt.Printf("%v Avanis-GmbH/%v\n", i, repo["name"].(string))
 	}
 
 }
