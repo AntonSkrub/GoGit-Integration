@@ -1,6 +1,7 @@
 package gitapi
 
 import (
+	"GoGit-Integration/pkg/config"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,12 +9,14 @@ import (
 	"time"
 )
 
-func GetList() []string {
+func GetList(config *config.Config) []string {
+
 	req, err := http.NewRequest("GET", "https://api.github.com/orgs/Avanis-GmbH/repos", nil)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
-	req.Header.Set("Authorization", "Bearer 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")
+
+	req.Header.Set("Authorization", "Bearer "+config.OrgaToken)
 
 	client := http.Client{
 		Timeout: 30 * time.Second,

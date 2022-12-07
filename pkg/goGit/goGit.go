@@ -1,6 +1,7 @@
 package goGit
 
 import (
+	"GoGit-Integration/pkg/config"
 	"fmt"
 	"os"
 
@@ -9,8 +10,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
-func Clone(names []string) {
-	orgaToken := "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"
+func Clone(names []string, config *config.Config) {
 	url := "https://github.com/Avanis-GmbH/"
 	dir := "../Go-Test/"
 
@@ -21,7 +21,7 @@ func Clone(names []string) {
 		r, err := git.PlainClone(dir+names[i], false, &git.CloneOptions{
 			Auth: &http.BasicAuth{
 				Username: "Avanis-GmbH",
-				Password: orgaToken,
+				Password: config.OrgaToken,
 			},
 			URL:      url + names[i] + ".git",
 			Progress: os.Stdout,
@@ -36,6 +36,6 @@ func Clone(names []string) {
 		CheckIfError(err)
 
 		fmt.Println(commit)
-		fmt.Printf("finished cloning for the %v. repository", i)
+		fmt.Printf("finished cloning for the %v. repository\n", i+1)
 	}
 }
