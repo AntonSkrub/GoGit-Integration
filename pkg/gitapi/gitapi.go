@@ -8,13 +8,12 @@ import (
 	"time"
 )
 
-func GetList() {
-
+func GetList() []string {
 	req, err := http.NewRequest("GET", "https://api.github.com/orgs/Avanis-GmbH/repos", nil)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
-	req.Header.Set("Authorization", "Bearer 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")
+	req.Header.Set("Authorization", "Bearer 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")
 
 	client := http.Client{
 		Timeout: 30 * time.Second,
@@ -38,9 +37,12 @@ func GetList() {
 	}
 
 	i := 0
+	var repoNames []string
+	fmt.Println("Repositories Names:")
 	for _, repo := range repos {
 		i++
-		fmt.Printf("%v Avanis-GmbH/%v\n", i, repo["name"].(string))
+		repoNames = append(repoNames, repo["name"].(string))
+		fmt.Printf("%v. %v\n", i, repo["name"])
 	}
-
+	return repoNames
 }
