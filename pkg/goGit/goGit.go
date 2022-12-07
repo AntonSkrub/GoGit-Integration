@@ -15,7 +15,6 @@ func Clone(names []string, config *config.Config) {
 	dir := "../Go-Test/"
 
 	for i := 0; i < len(names); i++ {
-
 		Info("git clone %s %s", url+names[i]+".git", dir+names[i])
 		// Clones the repository into the given dir, just as a normal git clone does
 		r, err := git.PlainClone(dir+names[i], false, &git.CloneOptions{
@@ -26,7 +25,11 @@ func Clone(names []string, config *config.Config) {
 			URL:      url + names[i] + ".git",
 			Progress: os.Stdout,
 		})
-		CheckIfError(err)
+		// if error is not nil, skip the repository and continue with the next one
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			continue
+		}
 
 		// ... retrieving the branch being pointed by HEAD
 		ref, err := r.Head()
