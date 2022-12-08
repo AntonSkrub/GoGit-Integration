@@ -51,11 +51,11 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 		if err != nil {
 			if err == git.NoErrAlreadyUpToDate {
 				fmt.Printf("Error: Repository already up to date\n")
-				return
 			} else {
 				fmt.Printf("Error: %v\n", err)
 				return
 			}
+			continue
 		}
 
 		//---
