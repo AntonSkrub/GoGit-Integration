@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	. "github.com/go-git/go-git/v5/_examples"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
@@ -45,11 +47,26 @@ func Clone(names []string, config *config.Config) {
 		// ... retrieving the branch being pointed by HEAD
 		ref, err := r.Head()
 		CheckIfError(err)
-		// ... retrieving the commit object
-		commit, err := r.CommitObject(ref.Hash())
+		fmt.Println(ref)
+
+		// since := time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC)
+		// until := time.Date(2022, 12, 9, 0, 0, 0, 0, time.UTC)
+		since := time.Now().AddDate(0, -2, 0)
+		until := time.Now()
+		cIter, err := r.Log(&git.LogOptions{
+			From:  ref.Hash(),
+			Since: &since,
+			Until: &until,
+		})
 		CheckIfError(err)
 
-		fmt.Println(commit)
+		// ... just iterates over the commits, printing it
+		err = cIter.ForEach(func(c *object.Commit) error {
+			fmt.Println(c)
+			return nil
+		})
+		CheckIfError(err)
+
 		fmt.Printf("finished cloning for the %v. repository\n", i+1)
 	}
 }
@@ -71,6 +88,7 @@ func Update(name string, config *config.Config) {
 			Password: config.OrgaToken,
 		},
 		RemoteName: "origin",
+		Progress:   os.Stdout,
 	})
 	if err != nil {
 		if err == git.NoErrAlreadyUpToDate {
@@ -83,11 +101,24 @@ func Update(name string, config *config.Config) {
 	}
 
 	ref, err := r.Head()
-	fmt.Printf("Ref: %+v\n", ref)
 	CheckIfError(err)
-	commit, err := r.CommitObject(ref.Hash())
-	fmt.Printf("Commit: %+v\n", commit)
+	fmt.Println(ref)
+
+	// since := time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC)
+	// until := time.Date(2022, 12, 9, 0, 0, 0, 0, time.UTC)
+	since := time.Now().AddDate(0, 0, -7)
+	until := time.Now()
+	cIter, err := r.Log(&git.LogOptions{
+		From:  ref.Hash(),
+		Since: &since,
+		Until: &until,
+	})
 	CheckIfError(err)
 
-	fmt.Println(commit)
+	// ... just iterates over the commits, printing it
+	err = cIter.ForEach(func(c *object.Commit) error {
+		fmt.Println(c)
+		return nil
+	})
+	CheckIfError(err)
 }
