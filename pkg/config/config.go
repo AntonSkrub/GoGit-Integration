@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -13,6 +14,15 @@ var configPath = "./config/config.yml"
 type Config struct {
 	OrgaName  string `yaml:"OrgaName"`
 	OrgaToken string `yaml:"OrgaToken"`
+
+	UserName  string `yaml:"UserName"`
+	UserToken string `yaml:"UserToken"`
+
+	OutputPath string `yaml:"OutputPath"`
+
+	EnableLog bool      `yaml:"EnableLog"`
+	LogSince  time.Time `yaml:"LogSince"`
+	LogUntil  time.Time `yaml:"LogUntil"`
 }
 
 func GetConfig() (*Config, error) {

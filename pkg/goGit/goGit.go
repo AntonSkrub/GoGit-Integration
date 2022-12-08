@@ -13,8 +13,7 @@ import (
 )
 
 func UpdateLocalCopies(names []string, config *config.Config) {
-	url := "https://github.com/" + config.OrgaName + "/"
-	dir := "../Go-Test/"
+	url := "https://github.com/" + config.OrgaName
 
 	for i := 0; i < len(names); i++ {
 		fmt.Printf("Value of i currently is: %v\n", i)
@@ -24,7 +23,7 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 		}
 
 		// Open the repository at the give path
-		r, err := git.PlainOpen(dir + names[i])
+		r, err := git.PlainOpen(config.OutputPath + names[i])
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
 				fmt.Printf("Error: Local copy of Repository %v not found, creating one now!\n", names[i])
@@ -40,7 +39,7 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 		CheckIfError(err)
 
 		// Pull the latest changes from the origin and merge into the current branch
-		Info("git pull origin from %s to %s", url+names[i]+".git", dir+names[i])
+		Info("git pull origin from %s to %s", url+names[i]+".git", config.OutputPath+names[i])
 		err = w.Pull(&git.PullOptions{
 			Auth: &http.BasicAuth{
 				Username: config.OrgaName,
@@ -67,7 +66,7 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 
 		// since := time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC)
 		// until := time.Date(2022, 12, 9, 0, 0, 0, 0, time.UTC)
-		since := time.Now().AddDate(0, 0, -2)
+		since := time.Now().AddDate(0, 0, -1)
 		until := time.Now()
 		cIter, err := r.Log(&git.LogOptions{
 			From:  ref.Hash(),
@@ -87,12 +86,11 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 }
 
 func Clone(name string, config *config.Config) {
-	url := "https://github.com/" + config.OrgaName + "/"
-	dir := "../Go-Test/"
+	url := "https://github.com/" + config.OrgaName
 
 	// Clone the given repository to the given directory
-	Info("git clone %s to %s", url+name+".git", dir+name)
-	r, err := git.PlainClone(dir+name, false, &git.CloneOptions{
+	Info("git clone %s to %s", url+name+".git", config.OutputPath+name)
+	r, err := git.PlainClone(config.OutputPath+name, false, &git.CloneOptions{
 		Auth: &http.BasicAuth{
 			Username: config.OrgaName,
 			Password: config.OrgaToken,
@@ -113,7 +111,7 @@ func Clone(name string, config *config.Config) {
 
 	// since := time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC)
 	// until := time.Date(2022, 12, 9, 0, 0, 0, 0, time.UTC)
-	since := time.Now().AddDate(0, 0, -2)
+	since := time.Now().AddDate(0, 0, -1)
 	until := time.Now()
 	cIter, err := r.Log(&git.LogOptions{
 		From:  ref.Hash(),
@@ -130,5 +128,5 @@ func Clone(name string, config *config.Config) {
 	CheckIfError(err)
 	//---
 
-	fmt.Printf("finished cloning the %v Repository to %v\n", name, dir+name)
+	fmt.Printf("finished cloning the %v Repository to %v\n", name, config.OutputPath+name)
 }

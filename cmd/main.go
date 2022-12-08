@@ -19,7 +19,7 @@ func main() {
 
 	fmt.Println("Repositories Paths:")
 	for i := 0; i < len(names); i++ {
-		fmt.Printf("%v. %v/%v\n", i, config.OrgaName, names[i])
+		fmt.Printf("%v. %v%v\n", i, config.OrgaName, names[i])
 	}
 
 	goGit.UpdateLocalCopies(names, config)
