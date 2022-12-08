@@ -11,6 +11,7 @@ var instance *Config
 var configPath = "./config/config.yml"
 
 type Config struct {
+	OrgaName  string `yaml:"OrgaName"`
 	OrgaToken string `yaml:"OrgaToken"`
 }
 

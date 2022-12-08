@@ -11,7 +11,7 @@ import (
 
 func GetList(config *config.Config) []string {
 
-	req, err := http.NewRequest("GET", "https://api.github.com/orgs/Avanis-GmbH/repos", nil)
+	req, err := http.NewRequest("GET", "https://api.github.com/orgs/"+config.OrgaName+"/repos", nil)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
