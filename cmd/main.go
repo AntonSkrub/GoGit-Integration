@@ -22,5 +22,5 @@ func main() {
 		fmt.Printf("%v. %v/%v\n", i, config.OrgaName, names[i])
 	}
 
-	goGit.Clone(names, config)
+	goGit.UpdateLocalCopies(names, config)
 }
