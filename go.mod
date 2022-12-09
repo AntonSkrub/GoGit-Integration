@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/go-git/go-git/v5 v5.5.0
 	github.com/sirupsen/logrus v1.7.0
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
