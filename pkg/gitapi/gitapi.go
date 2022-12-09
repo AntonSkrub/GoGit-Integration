@@ -12,7 +12,7 @@ import (
 )
 
 func GetList(config *config.Config) []string {
-	req, err := http.NewRequest("GET", "https://api.github.com/orgs/"+config.OrgaName+"repos", nil)
+	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/orgs/"+config.OrgaName+"repos", nil)
 	if err != nil {
 		logr.Errorf("[GitAPI] failed creating the request: %v\n", err)
 	}
@@ -44,8 +44,13 @@ func GetList(config *config.Config) []string {
 	logr.Println("[GitAPI] Found Repositories:")
 	for _, repo := range repos {
 		i++
-		repoNames = append(repoNames, repo["name"].(string))
-		fmt.Printf("%v. %v%v\n", i, config.OrgaName, repo["name"])
+		name, ok := repo["name"].(string)
+		if !ok {
+			logr.Errorf("[GitAPI] failed converting the repository name to string: %v\n", err)
+		} else {
+			repoNames = append(repoNames, name)
+			fmt.Printf("%v. %v%v\n", i, config.OrgaName, repo["name"])
+		}
 	}
 	return repoNames
 }

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 
@@ -61,26 +60,7 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 			continue
 		}
 
-		// ... retrieving the branch being pointed by HEAD
-		ref, err := r.Head()
-		if err != nil {
-			logr.Errorf("[GoGit] failed getting the HEAD reference: %v\n", err)
-			return
-		}
-
-		if !config.EnableLog {
-			commit, err := r.CommitObject(ref.Hash())
-			if err != nil {
-				logr.Errorf("[GoGit] failed getting the commit object: %v\n", err)
-				return
-			}
-			name := string(ref.Name())
-			branch := strings.Split(name, "/")[len(strings.Split(name, "/"))-1]
-			logr.Infof("[GoGit] latest commit %v on branch", branch)
-			fmt.Println(commit)
-		} else {
-			GetLog(r, ref)
-		}
+		GetLog(r, config)
 		logr.Infof("[GoGit] Finished updating the %v repository", names[i])
 	}
 }
@@ -103,6 +83,12 @@ func Clone(name string, config *config.Config) {
 		return
 	}
 
+	GetLog(r, config)
+	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, config.OutputPath+name)
+}
+
+func GetLog(r *git.Repository, config *config.Config) {
+
 	// ... retrieving the branch being pointed by HEAD
 	ref, err := r.Head()
 	if err != nil {
@@ -118,34 +104,29 @@ func Clone(name string, config *config.Config) {
 		}
 		name := string(ref.Name())
 		branch := strings.Split(name, "/")[len(strings.Split(name, "/"))-1]
-		logr.Infof("[GoGit] latest commit on %v branch", branch)
+		logr.Infof("[GoGit] latest commit %v on branch", branch)
 		fmt.Println(commit)
 	} else {
-		GetLog(r, ref)
-	}
-	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, config.OutputPath+name)
-}
+		logr.Info("[GoGit] Getting the commit history")
+		since := time.Now().AddDate(0, 0, -1)
+		until := time.Now()
+		cIter, err := r.Log(&git.LogOptions{
+			From:  ref.Hash(),
+			Since: &since,
+			Until: &until,
+		})
+		if err != nil {
+			logr.Errorf("[GoGit] failed getting the log: %v\n", err)
+			return
+		}
 
-func GetLog(r *git.Repository, ref *plumbing.Reference) {
-	logr.Info("[GoGit] Getting the commit history")
-	since := time.Now().AddDate(0, 0, -1)
-	until := time.Now()
-	cIter, err := r.Log(&git.LogOptions{
-		From:  ref.Hash(),
-		Since: &since,
-		Until: &until,
-	})
-	if err != nil {
-		logr.Errorf("[GoGit] failed getting the log: %v\n", err)
-		return
-	}
-
-	err = cIter.ForEach(func(c *object.Commit) error {
-		fmt.Println(c)
-		return nil
-	})
-	if err != nil {
-		logr.Errorf("[GoGit] failed iterating the log: %v\n", err)
-		return
+		err = cIter.ForEach(func(c *object.Commit) error {
+			fmt.Println(c)
+			return nil
+		})
+		if err != nil {
+			logr.Errorf("[GoGit] failed iterating the log: %v\n", err)
+			return
+		}
 	}
 }
