@@ -20,6 +20,7 @@ type Config struct {
 	OutputPath string `yaml:"OutputPath"`
 
 	EnableLog bool `yaml:"EnableLog"`
+	LogLevel  int  `yaml:"LogLevel"`
 }
 
 func GetConfig() (*Config, error) {

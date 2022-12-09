@@ -4,18 +4,18 @@ import (
 	"GoGit-Integration/pkg/config"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-git/go-git/v5"
-	. "github.com/go-git/go-git/v5/_examples"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+
+	logr "github.com/sirupsen/logrus"
 )
 
 func UpdateLocalCopies(names []string, config *config.Config) {
-	url := "https://github.com/" + config.OrgaName
-
 	for i := 0; i < len(names); i++ {
 		fmt.Printf("Value of i currently is: %v\n", i)
 		if i >= 3 {
@@ -27,20 +27,22 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 		r, err := git.PlainOpen(config.OutputPath + names[i])
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
-				fmt.Printf("Error: Local copy of Repository %v not found, creating one now!\n", names[i])
+				logr.Errorf("[GoGit] Couldn't find a local copy of Repository %v", names[i])
 				Clone(names[i], config)
 			} else {
-				fmt.Printf("Error: %v\n", err)
+				logr.Errorf("[GoGit] failed opening the repository: %v\n", err)
 			}
 			continue
 		}
-
 		// Retrieve the working directory for the repository
 		w, err := r.Worktree()
-		CheckIfError(err)
+		if err != nil {
+			logr.Errorf("[GoGit] failed getting the working directory: %v\n", err)
+			return
+		}
 
 		// Pull the latest changes from the origin and merge into the current branch
-		Info("git pull origin from %s to %s", url+names[i]+".git", config.OutputPath+names[i])
+		logr.Infof("[GoGit] Pulling the latest changes from the origin of %v", names[i])
 		err = w.Pull(&git.PullOptions{
 			Auth: &http.BasicAuth{
 				Username: config.OrgaName,
@@ -51,9 +53,9 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 		})
 		if err != nil {
 			if err == git.NoErrAlreadyUpToDate {
-				fmt.Printf("Error: Repository already up to date\n")
+				logr.Errorf("[GoGit] Repository %v already up to date", names[i])
 			} else {
-				fmt.Printf("Error: %v\n", err)
+				logr.Errorf("[GoGit] failed pulling the repository: %v\n", err)
 				return
 			}
 			continue
@@ -61,18 +63,25 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 
 		// ... retrieving the branch being pointed by HEAD
 		ref, err := r.Head()
-		CheckIfError(err)
-		fmt.Println(ref)
+		if err != nil {
+			logr.Errorf("[GoGit] failed getting the HEAD reference: %v\n", err)
+			return
+		}
 
 		if !config.EnableLog {
 			commit, err := r.CommitObject(ref.Hash())
-			fmt.Printf("Commit: %+v\n", commit)
-			CheckIfError(err)
-
+			if err != nil {
+				logr.Errorf("[GoGit] failed getting the commit object: %v\n", err)
+				return
+			}
+			name := string(ref.Name())
+			branch := strings.Split(name, "/")[len(strings.Split(name, "/"))-1]
+			logr.Infof("[GoGit] latest commit %v on branch", branch)
 			fmt.Println(commit)
 		} else {
 			GetLog(r, ref)
 		}
+		logr.Infof("[GoGit] Finished updating the %v repository", names[i])
 	}
 }
 
@@ -80,7 +89,7 @@ func Clone(name string, config *config.Config) {
 	url := "https://github.com/" + config.OrgaName
 
 	// Clone the given repository to the given directory
-	Info("git clone %s to %s", url+name+".git", config.OutputPath+name)
+	logr.Infof("[GoGit] Cloning the %v repository to %v", url+name+".git", config.OutputPath+name)
 	r, err := git.PlainClone(config.OutputPath+name, false, &git.CloneOptions{
 		Auth: &http.BasicAuth{
 			Username: config.OrgaName,
@@ -90,28 +99,35 @@ func Clone(name string, config *config.Config) {
 		Progress: os.Stdout,
 	})
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		logr.Errorf("[GoGit] failed cloning the repository: %v\n", err)
 		return
 	}
 
+	// ... retrieving the branch being pointed by HEAD
 	ref, err := r.Head()
-	CheckIfError(err)
-	fmt.Println(ref)
+	if err != nil {
+		logr.Errorf("[GoGit] failed getting the HEAD reference: %v\n", err)
+		return
+	}
 
 	if !config.EnableLog {
 		commit, err := r.CommitObject(ref.Hash())
-		fmt.Printf("Commit: %+v\n", commit)
-		CheckIfError(err)
-
+		if err != nil {
+			logr.Errorf("[GoGit] failed getting the commit object: %v\n", err)
+			return
+		}
+		name := string(ref.Name())
+		branch := strings.Split(name, "/")[len(strings.Split(name, "/"))-1]
+		logr.Infof("[GoGit] latest commit on %v branch", branch)
 		fmt.Println(commit)
 	} else {
 		GetLog(r, ref)
 	}
-
-	fmt.Printf("finished cloning the %v Repository to %v\n", name, config.OutputPath+name)
+	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, config.OutputPath+name)
 }
 
 func GetLog(r *git.Repository, ref *plumbing.Reference) {
+	logr.Info("[GoGit] Getting the commit history")
 	since := time.Now().AddDate(0, 0, -1)
 	until := time.Now()
 	cIter, err := r.Log(&git.LogOptions{
@@ -119,12 +135,17 @@ func GetLog(r *git.Repository, ref *plumbing.Reference) {
 		Since: &since,
 		Until: &until,
 	})
-	CheckIfError(err)
+	if err != nil {
+		logr.Errorf("[GoGit] failed getting the log: %v\n", err)
+		return
+	}
 
-	// ... just iterates over the commits, printing it
 	err = cIter.ForEach(func(c *object.Commit) error {
 		fmt.Println(c)
 		return nil
 	})
-	CheckIfError(err)
+	if err != nil {
+		logr.Errorf("[GoGit] failed iterating the log: %v\n", err)
+		return
+	}
 }

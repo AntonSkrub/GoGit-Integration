@@ -7,12 +7,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	logr "github.com/sirupsen/logrus"
 )
 
 func GetList(config *config.Config) []string {
 	req, err := http.NewRequest("GET", "https://api.github.com/orgs/"+config.OrgaName+"repos", nil)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		logr.Errorf("[GitAPI] failed creating the request: %v\n", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+config.OrgaToken)
 
@@ -22,28 +24,28 @@ func GetList(config *config.Config) []string {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		logr.Errorf("[GitAPI] failed sending the request: %v\n", err)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		logr.Errorf("[GitAPI] failed reading the response body: %v\n", err)
 	}
 
 	// unmarshal the json and get the name parameter for each repo
 	var repos []map[string]interface{}
 	err = json.Unmarshal(body, &repos)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		logr.Errorf("[GitAPI] failed unmarshalling the json: %v\n", err)
 	}
 
 	i := 0
 	var repoNames []string
-	fmt.Println("Repositories Names:")
+	logr.Println("[GitAPI] Found Repositories:")
 	for _, repo := range repos {
 		i++
 		repoNames = append(repoNames, repo["name"].(string))
-		fmt.Printf("%v. %v\n", i, repo["name"])
+		fmt.Printf("%v. %v%v\n", i, config.OrgaName, repo["name"])
 	}
 	return repoNames
 }

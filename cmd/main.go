@@ -4,23 +4,19 @@ import (
 	"GoGit-Integration/pkg/config"
 	"GoGit-Integration/pkg/gitapi"
 	"GoGit-Integration/pkg/goGit"
-	"fmt"
-	"os"
+
+	logr "github.com/sirupsen/logrus"
 )
 
 func main() {
+	logr.Infoln("Grabbing configuration...")
 	config, err := config.GetConfig()
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		os.Exit(1)
+		logr.Panic(err)
 	}
+	logr.SetLevel(logr.Level(config.LogLevel))
 
 	names := gitapi.GetList(config)
-
-	fmt.Println("Repositories Paths:")
-	for i := 0; i < len(names); i++ {
-		fmt.Printf("%v. %v%v\n", i, config.OrgaName, names[i])
-	}
 
 	goGit.UpdateLocalCopies(names, config)
 }
