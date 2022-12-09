@@ -17,7 +17,7 @@ import (
 func UpdateLocalCopies(names []string, config *config.Config) {
 	for i := 0; i < len(names); i++ {
 		fmt.Printf("Value of i currently is: %v\n", i)
-		if i >= 3 {
+		if i >= 5 {
 			fmt.Println("we break here")
 			break
 		}
@@ -60,6 +60,10 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 			continue
 		}
 
+		if config.ListRefereces {
+			ListRefs(names[i], config)
+		}
+
 		GetLog(r, config)
 		logr.Infof("[GoGit] Finished updating the %v repository", names[i])
 	}
@@ -83,6 +87,10 @@ func Clone(name string, config *config.Config) {
 		return
 	}
 
+	if config.ListRefereces {
+		ListRefs(name, config)
+	}
+
 	GetLog(r, config)
 	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, config.OutputPath+name)
 }
@@ -103,8 +111,8 @@ func GetLog(r *git.Repository, config *config.Config) {
 		}
 		name := string(ref.Name())
 		branch := strings.Split(name, "/")[len(strings.Split(name, "/"))-1]
-		logr.Infof("[GoGit] latest commit %v on branch", branch)
-		fmt.Println(commit)
+		logr.Infof("[GoGit] Get latest commit %v on branch\n", branch)
+		fmt.Printf("Git checkout: %v\n", commit)
 	} else {
 		logr.Info("[GoGit] Getting the commit history")
 		since := time.Now().AddDate(0, 0, -1)
@@ -128,4 +136,60 @@ func GetLog(r *git.Repository, config *config.Config) {
 			return
 		}
 	}
+}
+
+func ListRefs(name string, config *config.Config) {
+	r, err := git.PlainOpen(config.OutputPath + name)
+	if err != nil {
+		logr.Errorf("[GoGit] failed opening the repository: %v\n", err)
+		return
+	}
+
+	// branches
+	fmt.Println("------ remote branch references --------")
+	remote, err := r.Remote("origin")
+	if err != nil {
+		logr.Errorf("[GoGit] failed getting the remote: %v\n", err)
+		return
+	}
+	refList, err := remote.List(&git.ListOptions{
+		Auth: &http.BasicAuth{
+			Username: config.OrgaName,
+			Password: config.OrgaToken,
+		},
+	})
+	if err != nil {
+		logr.Errorf("[GoGit] failed listing the remote: %v\n", err)
+		return
+	}
+	branchRefPrefix := "refs/heads/"
+	for _, ref := range refList {
+		refName := ref.Name().String()
+		if !strings.HasPrefix(refName, branchRefPrefix) {
+			continue
+		}
+		// branchName := refName[len(branchRefPrefix):]
+		fmt.Println(refName)
+	}
+
+	// tags
+	fmt.Println("------ tag references --------")
+	tagList := make([]string, 0)
+	tagRefPrefix := "refs/tags/"
+	for _, ref := range refList {
+		refName := ref.Name().String()
+		if !strings.HasPrefix(refName, tagRefPrefix) {
+			continue
+		}
+		tagList = append(tagList, refName)
+	}
+	if len(tagList) == 0 {
+		fmt.Println("--- No tags found ---")
+	} else {
+		for _, tag := range tagList {
+			// tagName := tag[len(tagRefPrefix):]
+			fmt.Println(tag)
+		}
+	}
+
 }
