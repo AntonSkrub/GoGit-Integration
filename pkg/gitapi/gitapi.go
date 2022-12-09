@@ -10,12 +10,10 @@ import (
 )
 
 func GetList(config *config.Config) []string {
-
 	req, err := http.NewRequest("GET", "https://api.github.com/orgs/"+config.OrgaName+"repos", nil)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
-
 	req.Header.Set("Authorization", "Bearer "+config.OrgaToken)
 
 	client := http.Client{

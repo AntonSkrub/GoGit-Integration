@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	. "github.com/go-git/go-git/v5/_examples"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
@@ -58,30 +59,20 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 			continue
 		}
 
-		//---
 		// ... retrieving the branch being pointed by HEAD
 		ref, err := r.Head()
 		CheckIfError(err)
 		fmt.Println(ref)
 
-		// since := time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC)
-		// until := time.Date(2022, 12, 9, 0, 0, 0, 0, time.UTC)
-		since := time.Now().AddDate(0, 0, -1)
-		until := time.Now()
-		cIter, err := r.Log(&git.LogOptions{
-			From:  ref.Hash(),
-			Since: &since,
-			Until: &until,
-		})
-		CheckIfError(err)
+		if !config.EnableLog {
+			commit, err := r.CommitObject(ref.Hash())
+			fmt.Printf("Commit: %+v\n", commit)
+			CheckIfError(err)
 
-		// ... just iterates over the commits, printing it
-		err = cIter.ForEach(func(c *object.Commit) error {
-			fmt.Println(c)
-			return nil
-		})
-		CheckIfError(err)
-		//---
+			fmt.Println(commit)
+		} else {
+			GetLog(r, ref)
+		}
 	}
 }
 
@@ -103,14 +94,24 @@ func Clone(name string, config *config.Config) {
 		return
 	}
 
-	//---
-	// ... retrieving the branch being pointed by HEAD
 	ref, err := r.Head()
 	CheckIfError(err)
 	fmt.Println(ref)
 
-	// since := time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC)
-	// until := time.Date(2022, 12, 9, 0, 0, 0, 0, time.UTC)
+	if !config.EnableLog {
+		commit, err := r.CommitObject(ref.Hash())
+		fmt.Printf("Commit: %+v\n", commit)
+		CheckIfError(err)
+
+		fmt.Println(commit)
+	} else {
+		GetLog(r, ref)
+	}
+
+	fmt.Printf("finished cloning the %v Repository to %v\n", name, config.OutputPath+name)
+}
+
+func GetLog(r *git.Repository, ref *plumbing.Reference) {
 	since := time.Now().AddDate(0, 0, -1)
 	until := time.Now()
 	cIter, err := r.Log(&git.LogOptions{
@@ -126,7 +127,4 @@ func Clone(name string, config *config.Config) {
 		return nil
 	})
 	CheckIfError(err)
-	//---
-
-	fmt.Printf("finished cloning the %v Repository to %v\n", name, config.OutputPath+name)
 }
