@@ -17,7 +17,7 @@ import (
 func UpdateLocalCopies(names []string, config *config.Config) {
 	for i := 0; i < len(names); i++ {
 		fmt.Printf("Value of i currently is: %v\n", i)
-		if i >= 5 {
+		if i >= 10 {
 			fmt.Println("we break here")
 			break
 		}
@@ -43,12 +43,13 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 		// Pull the latest changes from the origin and merge into the current branch
 		logr.Infof("[GoGit] Pulling the latest changes from the origin of %v", names[i])
 		err = w.Pull(&git.PullOptions{
+			RemoteName:   "origin",
+			SingleBranch: false,
 			Auth: &http.BasicAuth{
 				Username: config.OrgaName,
 				Password: config.OrgaToken,
 			},
-			RemoteName: "origin",
-			Progress:   os.Stdout,
+			Progress: os.Stdout,
 		})
 		if err != nil {
 			if err == git.NoErrAlreadyUpToDate {
@@ -75,11 +76,14 @@ func Clone(name string, config *config.Config) {
 	// Clone the given repository to the given directory
 	logr.Infof("[GoGit] Cloning the %v repository to %v", url+name+".git", config.OutputPath+name)
 	r, err := git.PlainClone(config.OutputPath+name, false, &git.CloneOptions{
+		URL:          url + name + ".git",
+		RemoteName:   "origin",
+		SingleBranch: false,
+		NoCheckout:   false,
 		Auth: &http.BasicAuth{
 			Username: config.OrgaName,
 			Password: config.OrgaToken,
 		},
-		URL:      url + name + ".git",
 		Progress: os.Stdout,
 	})
 	if err != nil {
@@ -115,10 +119,11 @@ func GetLog(r *git.Repository, config *config.Config) {
 		fmt.Printf("Git checkout: %v\n", commit)
 	} else {
 		logr.Info("[GoGit] Getting the commit history")
-		since := time.Now().AddDate(0, 0, -1)
+		since := time.Now().AddDate(0, 0, -3)
 		until := time.Now()
 		cIter, err := r.Log(&git.LogOptions{
-			From:  ref.Hash(),
+			From: ref.Hash(),
+			// All:   true,
 			Since: &since,
 			Until: &until,
 		})
