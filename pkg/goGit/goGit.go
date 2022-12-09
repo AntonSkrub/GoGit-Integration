@@ -88,7 +88,6 @@ func Clone(name string, config *config.Config) {
 }
 
 func GetLog(r *git.Repository, config *config.Config) {
-
 	// ... retrieving the branch being pointed by HEAD
 	ref, err := r.Head()
 	if err != nil {
