@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/go-git/go-git/v5 v5.5.0
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.7.0
 	gopkg.in/yaml.v2 v2.2.4
 )
