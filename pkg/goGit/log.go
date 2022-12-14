@@ -11,7 +11,6 @@ import (
 )
 
 func ListRefs(r *git.Repository, config *config.Config) {
-	fmt.Println("------ remote branch references --------")
 	remote, err := r.Remote("origin")
 	if err != nil {
 		logr.Errorf("[GoGit] failed getting the remote: %v\n", err)
@@ -28,25 +27,28 @@ func ListRefs(r *git.Repository, config *config.Config) {
 		return
 	}
 	branchRefPrefix := "refs/heads/"
+	tagRefPrefix := "refs/tags/"
+	branchList := make([]string, 0)
+	tagList := make([]string, 0)
+
+	fmt.Println("------ remote branch references --------")
 	for _, ref := range refList {
 		refName := ref.Name().String()
 		if !strings.HasPrefix(refName, branchRefPrefix) {
+			if strings.HasPrefix(refName, tagRefPrefix) {
+				tagList = append(tagList, refName)
+			}
 			continue
 		}
-		branchName := refName[len(branchRefPrefix):]
+		branchList = append(branchList, refName)
+	}
+
+	for _, branch := range branchList {
+		branchName := branch[len(branchRefPrefix):]
 		fmt.Println(branchName)
 	}
 
 	fmt.Println("------ tag references --------")
-	tagList := make([]string, 0)
-	tagRefPrefix := "refs/tags/"
-	for _, ref := range refList {
-		refName := ref.Name().String()
-		if !strings.HasPrefix(refName, tagRefPrefix) {
-			continue
-		}
-		tagList = append(tagList, refName)
-	}
 	if len(tagList) == 0 {
 		fmt.Println("--- No tags found ---")
 	} else {
