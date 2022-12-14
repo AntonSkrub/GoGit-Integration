@@ -3,7 +3,6 @@ package gitapi
 import (
 	"GoGit-Integration/pkg/config"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -32,7 +31,7 @@ func GetList(config *config.Config) []string {
 		logr.Errorf("[GitAPI] failed reading the response body: %v\n", err)
 	}
 
-	// unmarshal the json and get the name parameter for each repo
+	// Unmarshal the json response to get the repository names
 	var repos []map[string]interface{}
 	err = json.Unmarshal(body, &repos)
 	if err != nil {
@@ -41,7 +40,6 @@ func GetList(config *config.Config) []string {
 
 	i := 0
 	var repoNames []string
-	logr.Println("[GitAPI] Found Repositories:")
 	for _, repo := range repos {
 		i++
 		name, ok := repo["name"].(string)
@@ -49,8 +47,9 @@ func GetList(config *config.Config) []string {
 			logr.Errorf("[GitAPI] failed converting the repository name to string: %v\n", err)
 		} else {
 			repoNames = append(repoNames, name)
-			fmt.Printf("%v. %v%v\n", i, config.OrgaName, repo["name"])
+			// fmt.Printf("%v. %v%v\n", i, config.OrgaName, repo["name"])
 		}
 	}
+	logr.Printf("[GitAPI] Found %v Repositories!", i)
 	return repoNames
 }
