@@ -62,7 +62,7 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 			ListRefs(r, config)
 		}
 
-		if config.EnableLog {
+		if config.LogLatestCommits {
 			GetLog(r, config)
 		}
 		logr.Infof("[GoGit] Finished updating the %v repository", names[i])
@@ -72,7 +72,7 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 func Clone(name string, config *config.Config) {
 	url := "https://github.com/" + config.OrgaName
 
-	// Clone the given repository to the given directory
+	// Clone the repository to the given directory
 	logr.Infof("[GoGit] Cloning the %v repository to %v", url+name+".git", config.OutputPath+name)
 	r, err := git.PlainClone(config.OutputPath+name, false, &git.CloneOptions{
 		URL:          url + name + ".git",
@@ -94,7 +94,7 @@ func Clone(name string, config *config.Config) {
 		ListRefs(r, config)
 	}
 
-	if config.EnableLog {
+	if config.LogLatestCommits {
 		GetLog(r, config)
 	}
 	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, config.OutputPath+name)

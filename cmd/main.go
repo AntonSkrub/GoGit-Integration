@@ -16,14 +16,12 @@ func main() {
 	logr.Infoln("Grabbing configuration...")
 	config, err := config.GetConfig()
 	if err != nil {
-		logr.Panic(err)
+		logr.Fatalf("Failed to get configuration: %v", err)
 	}
 	logr.SetLevel(logr.Level(config.LogLevel))
 
 	names := gitapi.GetList(config)
 	goGit.UpdateLocalCopies(names, config)
-
-	logr.Info("Creating a stop channel for the cron job ...")
 
 	UpdateInterval := cron.New()
 	UpdateInterval.AddFunc("*/3 * * * *", func() {
@@ -37,6 +35,6 @@ func main() {
 	logr.Info("Received an interrupt signal, stopping the cron jobs ...")
 
 	UpdateInterval.Stop()
-	logr.Info("closed the stop channel, exiting ...")
+	logr.Info("Cron jobs stopped, exiting ...")
 	os.Exit(0)
 }
