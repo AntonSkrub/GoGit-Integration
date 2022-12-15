@@ -1,9 +1,9 @@
-package goGit
+package gogit
 
 import (
-	"GoGit-Integration/pkg/config"
-	"fmt"
 	"os"
+
+	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -13,32 +13,26 @@ import (
 
 func UpdateLocalCopies(names []string, config *config.Config) {
 	for i := 0; i < len(names); i++ {
-		fmt.Printf("Value of i currently is: %v\n", i)
-		if i >= 5 {
-			fmt.Println("we break here")
-			break
-		}
-
 		// Open the repository at the give path
 		r, err := git.PlainOpen(config.OutputPath + names[i])
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
-				logr.Errorf("[GoGit] Couldn't find a local copy of Repository %v", names[i])
+				logr.Errorf("[Git] Couldn't find a local copy of Repository %v", names[i])
 				Clone(names[i], config)
 			} else {
-				logr.Errorf("[GoGit] failed opening the repository: %v\n", err)
+				logr.Errorf("[Git] failed opening the repository: %v\n", err)
 			}
 			continue
 		}
 		// Retrieve the working directory for the repository
 		w, err := r.Worktree()
 		if err != nil {
-			logr.Errorf("[GoGit] failed getting the working directory: %v\n", err)
+			logr.Errorf("[Git] failed getting the working directory: %v\n", err)
 			return
 		}
 
 		// Pull the latest changes from the origin and merge into the current branch
-		logr.Infof("[GoGit] Pulling the latest changes from the origin of %v", names[i])
+		logr.Infof("[Git] Pulling the latest changes from the origin of %v", names[i])
 		err = w.Pull(&git.PullOptions{
 			RemoteName:   "origin",
 			SingleBranch: false,
@@ -50,22 +44,22 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 		})
 		if err != nil {
 			if err == git.NoErrAlreadyUpToDate {
-				logr.Errorf("[GoGit] Repository %v already up to date", names[i])
+				logr.Errorf("[Git] Repository %v already up to date", names[i])
 			} else {
-				logr.Errorf("[GoGit] failed pulling the repository: %v\n", err)
+				logr.Errorf("[Git] failed pulling the repository: %v\n", err)
 				return
 			}
 			continue
 		}
 
-		if config.ListRefereces {
+		if config.ListReferences {
 			ListRefs(r, config)
 		}
 
 		if config.LogLatestCommits {
 			GetLog(r, config)
 		}
-		logr.Infof("[GoGit] Finished updating the %v repository", names[i])
+		logr.Infof("[Git] Finished updating the %v repository", names[i])
 	}
 }
 
@@ -90,7 +84,7 @@ func Clone(name string, config *config.Config) {
 		return
 	}
 
-	if config.ListRefereces {
+	if config.ListReferences {
 		ListRefs(r, config)
 	}
 

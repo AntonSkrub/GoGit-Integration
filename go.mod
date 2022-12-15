@@ -1,4 +1,4 @@
-module GoGit-Integration
+module github.com/AntonSkrub/GoGit-Integration
 
 go 1.19
 

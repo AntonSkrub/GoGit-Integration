@@ -19,7 +19,7 @@ type Config struct {
 
 	OutputPath string `yaml:"OutputPath"`
 
-	ListRefereces    bool `yaml:"ListRefereces"`
+	ListReferences   bool `yaml:"ListReferences"`
 	LogLatestCommits bool `yaml:"LogCommits"`
 	LogLevel         int  `yaml:"LogLevel"`
 }

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"GoGit-Integration/pkg/config"
-	"GoGit-Integration/pkg/gitapi"
-	"GoGit-Integration/pkg/goGit"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
+	"github.com/AntonSkrub/GoGit-Integration/pkg/gitapi"
+	"github.com/AntonSkrub/GoGit-Integration/pkg/gogit"
 	"github.com/robfig/cron/v3"
 	logr "github.com/sirupsen/logrus"
 )
@@ -21,11 +21,11 @@ func main() {
 	logr.SetLevel(logr.Level(config.LogLevel))
 
 	names := gitapi.GetList(config)
-	goGit.UpdateLocalCopies(names, config)
+	gogit.UpdateLocalCopies(names, config)
 
 	UpdateInterval := cron.New()
 	UpdateInterval.AddFunc("*/3 * * * *", func() {
-		goGit.UpdateLocalCopies(names, config)
+		gogit.UpdateLocalCopies(names, config)
 	})
 	go UpdateInterval.Start()
 
