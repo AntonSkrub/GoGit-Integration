@@ -52,12 +52,8 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 			continue
 		}
 
-		if config.ListReferences {
-			ListRefs(r, config)
-		}
-
-		if config.LogLatestCommits {
-			GetLog(r, config)
+		if config.ListReferences || config.LogCommits {
+			AccessRepo(r, config)
 		}
 		logr.Infof("[Git] Finished updating the %v repository", names[i])
 	}
@@ -84,12 +80,8 @@ func Clone(name string, config *config.Config) {
 		return
 	}
 
-	if config.ListReferences {
-		ListRefs(r, config)
-	}
-
-	if config.LogLatestCommits {
-		GetLog(r, config)
+	if config.ListReferences || config.LogCommits {
+		AccessRepo(r, config)
 	}
 	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, config.OutputPath+name)
 }

@@ -19,9 +19,9 @@ type Config struct {
 
 	OutputPath string `yaml:"OutputPath"`
 
-	ListReferences   bool `yaml:"ListReferences"`
-	LogLatestCommits bool `yaml:"LogCommits"`
-	LogLevel         int  `yaml:"LogLevel"`
+	ListReferences bool `yaml:"ListReferences"`
+	LogCommits     bool `yaml:"LogCommits"`
+	LogLevel       int  `yaml:"LogLevel"`
 }
 
 func GetConfig() (*Config, error) {
