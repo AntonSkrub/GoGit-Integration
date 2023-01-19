@@ -66,7 +66,7 @@ func createConfig() error {
 		OrgaToken: "",
 		UserName: "Default User",
 		UserToken: "",
-		OutputPath: "../Repo-Backups",
+		OutputPath: "../Repo-Backups/",
 		ListReferences: true,
 		LogCommits: false,
 		LogLevel: 6,
