@@ -18,11 +18,20 @@ type Config struct {
 	UserName  string `yaml:"UserName"`
 	UserToken string `yaml:"UserToken"`
 
+	CloneUserRepos bool `yaml:"CloneUserRepos"`
+	Users map[string]User `yaml:"Users"`
+
 	OutputPath string `yaml:"OutputPath"`
 
 	ListReferences bool `yaml:"ListReferences"`
 	LogCommits     bool `yaml:"LogCommits"`
 	LogLevel       int  `yaml:"LogLevel"`
+}
+
+type User struct {
+	Name        string `yaml:"Name"`
+	Token       string `yaml:"Token"`
+	Affiliation string `yaml:"Affiliation"`
 }
 
 func GetConfig() *Config {

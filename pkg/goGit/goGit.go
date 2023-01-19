@@ -13,6 +13,10 @@ import (
 
 func UpdateLocalCopies(names []string, config *config.Config) {
 	for i := 0; i < len(names); i++ {
+		if i >= 10 {
+			logr.Info("Maximum number of repositories reached, exiting...")
+			break
+		}
 		// Open the repository at the give path
 		r, err := git.PlainOpen(config.OutputPath + names[i])
 		if err != nil {
