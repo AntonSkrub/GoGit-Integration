@@ -14,10 +14,7 @@ import (
 
 func main() {
 	logr.Infoln("Grabbing configuration...")
-	config, err := config.GetConfig()
-	if err != nil {
-		logr.Fatalf("Failed to get configuration: %v", err)
-	}
+	config := config.GetConfig()
 	logr.SetLevel(logr.Level(config.LogLevel))
 
 	names := gitapi.GetList(config)
