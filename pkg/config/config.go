@@ -12,14 +12,12 @@ var instance *Config
 var configPath = "./config"
 
 type Config struct {
-	OrgaName  string `yaml:"OrgaName"`
-	OrgaToken string `yaml:"OrgaToken"`
+	OrgaName     string `yaml:"OrgaName"`
+	OrgaToken    string `yaml:"OrgaToken"`
+	OrgaRepoType string `yaml:"OrgaRepoType"`
 
-	UserName  string `yaml:"UserName"`
-	UserToken string `yaml:"UserToken"`
-
-	CloneUserRepos bool `yaml:"CloneUserRepos"`
-	Users map[string]User `yaml:"Users"`
+	CloneUserRepos bool            `yaml:"CloneUserRepos"`
+	Users          map[string]User `yaml:"Users"`
 
 	OutputPath string `yaml:"OutputPath"`
 
@@ -71,14 +69,12 @@ func initConfig() error {
 
 func createConfig() error {
 	config := &Config{
-		OrgaName: "Default Orga",
-		OrgaToken: "",
-		UserName: "Default User",
-		UserToken: "",
-		OutputPath: "../Repo-Backups/",
+		OrgaName:       "Default Orga",
+		OrgaToken:      "",
+		OutputPath:     "../Repo-Backups/",
 		ListReferences: true,
-		LogCommits: false,
-		LogLevel: 6,
+		LogCommits:     false,
+		LogLevel:       6,
 	}
 
 	data, err := yaml.Marshal(config)

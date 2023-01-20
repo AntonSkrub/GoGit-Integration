@@ -17,12 +17,24 @@ func main() {
 	config := config.GetConfig()
 	logr.SetLevel(logr.Level(config.LogLevel))
 
-	names := gitapi.GetList(config)
-	gogit.UpdateLocalCopies(names, config)
+	orgaRepoNames := gitapi.GetList(config)
+	logr.Info("Found ", len(orgaRepoNames), " repositories in the organization")
+
+	gogit.UpdateLocalCopies(orgaRepoNames, config, nil)
+
+	// loop through the users in the config and log each users name to the console
+	if config.CloneUserRepos {
+		for _, user := range config.Users {
+			logr.Printf("[API] Found user: %v", user)
+			userRepoNames := gitapi.GetUserList(&user)
+			logr.Info("Found ", len(userRepoNames), " repositories on the user account of ", user.Name)
+			gogit.UpdateLocalCopies(userRepoNames, config, &user)
+		}
+	}
 
 	UpdateInterval := cron.New()
 	UpdateInterval.AddFunc("*/3 * * * *", func() {
-		gogit.UpdateLocalCopies(names, config)
+		gogit.UpdateLocalCopies(orgaRepoNames, config, nil)
 	})
 	go UpdateInterval.Start()
 

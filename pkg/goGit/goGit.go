@@ -2,6 +2,7 @@ package gogit
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
 
@@ -11,18 +12,24 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
-func UpdateLocalCopies(names []string, config *config.Config) {
+func UpdateLocalCopies(names []string, config *config.Config, user *config.User) {
 	for i := 0; i < len(names); i++ {
 		if i >= 10 {
 			logr.Info("Maximum number of repositories reached, exiting...")
 			break
 		}
 		// Open the repository at the give path
-		r, err := git.PlainOpen(config.OutputPath + names[i])
+
+		r, err := git.PlainOpen(filepath.Join(config.OutputPath, names[i]))
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
 				logr.Errorf("[Git] Couldn't find a local copy of Repository %v", names[i])
-				Clone(names[i], config)
+
+				if user != nil {
+					Clone(names[i], config, user)
+				} else {
+					Clone(names[i], config, nil)
+				}
 			} else {
 				logr.Errorf("[Git] failed opening the repository: %v\n", err)
 			}
@@ -36,15 +43,25 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 		}
 
 		// Pull the latest changes from the origin and merge into the current branch
+		var auth *http.BasicAuth
+		if user != nil {
+			auth = &http.BasicAuth{
+				Username: user.Name,
+				Password: user.Token,
+			}
+		} else {
+			auth = &http.BasicAuth{
+				Username: config.OrgaName,
+				Password: config.OrgaToken,
+			}
+		}
+
 		logr.Infof("[Git] Pulling the latest changes from the origin of %v", names[i])
 		err = w.Pull(&git.PullOptions{
 			RemoteName:   "origin",
 			SingleBranch: false,
-			Auth: &http.BasicAuth{
-				Username: config.OrgaName,
-				Password: config.OrgaToken,
-			},
-			Progress: os.Stdout,
+			Auth:         auth,
+			Progress:     os.Stdout,
 		})
 		if err != nil {
 			if err == git.NoErrAlreadyUpToDate {
@@ -63,21 +80,31 @@ func UpdateLocalCopies(names []string, config *config.Config) {
 	}
 }
 
-func Clone(name string, config *config.Config) {
-	url := "https://github.com/" + config.OrgaName
+func Clone(name string, config *config.Config, user *config.User) {
+	url := "https://github.com/" + name + ".git"
+
+	var auth *http.BasicAuth
+	if user != nil {
+		auth = &http.BasicAuth{
+			Username: user.Name,
+			Password: user.Token,
+		}
+	} else {
+		auth = &http.BasicAuth{
+			Username: config.OrgaName,
+			Password: config.OrgaToken,
+		}
+	}
 
 	// Clone the repository to the given directory
-	logr.Infof("[GoGit] Cloning the %v repository to %v", url+name+".git", config.OutputPath+name)
+	logr.Infof("[GoGit] Cloning the %v repository to %v", url, config.OutputPath+name)
 	r, err := git.PlainClone(config.OutputPath+name, false, &git.CloneOptions{
-		URL:          url + name + ".git",
+		URL:          url,
 		RemoteName:   "origin",
 		SingleBranch: false,
 		NoCheckout:   false,
-		Auth: &http.BasicAuth{
-			Username: config.OrgaName,
-			Password: config.OrgaToken,
-		},
-		Progress: os.Stdout,
+		Auth:         auth,
+		Progress:     os.Stdout,
 	})
 	if err != nil {
 		logr.Errorf("[GoGit] failed cloning the repository: %v\n", err)
