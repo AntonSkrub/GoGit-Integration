@@ -2,6 +2,7 @@ package gitapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -21,23 +22,17 @@ type Repo struct {
 }
 
 func GetRepoList(config *config.Config, user *config.User) []string {
-	token, option, reqUrl := "", "", ""
+	token, reqUrl := "", ""
 	var err error
 	if user != nil {
-		option = "affiliation=" + user.Affiliation
-		logr.Infof("[API] Using affiliaion option: %v", option)
-		reqUrl, err = url.JoinPath("https://api.github.com/user/repos?" + option)
-		if err != nil {
-			logr.Errorf("[API] failed creating the url: %v\n", err)
-		}
+		reqUrl = buildURL("https://api.github.com/user/repos", "affiliation", user.Affiliation)
 		token = user.Token
 	} else {
-		option = "type=" + config.OrgaRepoType
-		logr.Infof("[API] Using type option: %v", option)
-		reqUrl, err = url.JoinPath("https://api.github.com/orgs/" + config.OrgaName + "repos?" + option)
+		baseUrl, err := url.JoinPath("https://api.github.com/orgs/", config.OrgaName, "repos")
 		if err != nil {
 			logr.Errorf("[API] failed creating the url: %v\n", err)
 		}
+		reqUrl = buildURL(baseUrl, "type", config.OrgaRepoType)
 		token = config.OrgaToken
 	}
 
@@ -76,4 +71,17 @@ func GetRepoList(config *config.Config, user *config.User) []string {
 	}
 	logr.Printf("[API] Found %v Repositories!", i)
 	return repoNames
+}
+
+func buildURL(baseURL string, paramType string, param string) string {
+	fmt.Printf("using paramType: %v with param: %v", paramType, param)
+	url, err := url.Parse(baseURL)
+	if err != nil {
+		logr.Errorf("[API] failed creating the url: %v\n", err)
+	}
+	q := url.Query()
+	q.Add(paramType, param)
+	url.RawQuery = q.Encode()
+	urlString := url.String()
+	return urlString
 }

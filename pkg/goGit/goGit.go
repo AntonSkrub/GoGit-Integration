@@ -20,11 +20,7 @@ func UpdateLocalCopies(names []string, config *config.Config, user *config.User)
 			if err == git.ErrRepositoryNotExists {
 				logr.Errorf("[Git] Couldn't find a local copy of Repository %v", names[i])
 
-				if user != nil {
-					Clone(names[i], config, user)
-				} else {
-					Clone(names[i], config, nil)
-				}
+				Clone(names[i], config, user)
 			} else {
 				logr.Errorf("[Git] failed opening the repository: %v\n", err)
 			}
@@ -73,8 +69,9 @@ func Clone(name string, config *config.Config, user *config.User) {
 
 	auth := buildAuth(config, user)
 	// Clone the repository to the given directory
-	logr.Infof("[GoGit] Cloning the %v repository to %v", url, config.OutputPath+name)
-	r, err := git.PlainClone(config.OutputPath+name, false, &git.CloneOptions{
+	path := filepath.Join(config.OutputPath, name)
+	logr.Infof("[GoGit] Cloning the %v repository to %v", url, path)
+	r, err := git.PlainClone(path, false, &git.CloneOptions{
 		URL:          url,
 		RemoteName:   "origin",
 		SingleBranch: false,
@@ -90,20 +87,20 @@ func Clone(name string, config *config.Config, user *config.User) {
 	if config.ListReferences || config.LogCommits {
 		AccessRepo(r, config)
 	}
-	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, config.OutputPath+name)
+	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, path)
 }
 
 func buildAuth(config *config.Config, user *config.User) *http.BasicAuth {
 	var auth *http.BasicAuth
+	auth = &http.BasicAuth{
+		Username: config.OrgaName,
+		Password: config.OrgaToken,
+	}
+
 	if user != nil {
 		auth = &http.BasicAuth{
 			Username: user.Name,
 			Password: user.Token,
-		}
-	} else {
-		auth = &http.BasicAuth{
-			Username: config.OrgaName,
-			Password: config.OrgaToken,
 		}
 	}
 	return auth
