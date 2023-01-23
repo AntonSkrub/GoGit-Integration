@@ -89,6 +89,5 @@ func GetLog(r *git.Repository, refList []*plumbing.Reference) {
 		logr.Infof("[Git] commit: %s", commit.Hash)
 		logr.Infof("[Git] author: %s", commit.Author)
 		logr.Infof("[Git] message: %s", commit.Message)
-
 	}
 }

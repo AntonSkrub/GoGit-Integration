@@ -1,6 +1,7 @@
 package gogit
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -14,12 +15,6 @@ import (
 
 func UpdateLocalCopies(names []string, config *config.Config, user *config.User) {
 	for i := 0; i < len(names); i++ {
-		if i >= 10 {
-			logr.Info("Maximum number of repositories reached, exiting...")
-			break
-		}
-		// Open the repository at the give path
-
 		r, err := git.PlainOpen(filepath.Join(config.OutputPath, names[i]))
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
@@ -81,7 +76,11 @@ func UpdateLocalCopies(names []string, config *config.Config, user *config.User)
 }
 
 func Clone(name string, config *config.Config, user *config.User) {
-	url := "https://github.com/" + name + ".git"
+	url, err := url.JoinPath("https://githuib.com", name+".git")
+	if err != nil {
+		logr.Errorf("[GoGit] failed creating the url: %v\n", err)
+		return
+	}
 
 	var auth *http.BasicAuth
 	if user != nil {

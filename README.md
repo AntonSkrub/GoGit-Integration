@@ -10,7 +10,7 @@ The GoGit-Integration is a small application which maintains local copies of an 
 
 ### Prerequisites
 
-To install the application you need to have Go installed on your machine. 
+To install the application you need to have Go installed on your machine.
 If you don't have Go installed, you can find the installation instructions [here](https://golang.org/doc/install).
 
 ### Build from source

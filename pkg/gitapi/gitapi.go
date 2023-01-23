@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
@@ -18,7 +19,11 @@ func GetList(config *config.Config) []string {
 		logr.Infof("[API] Using type option: %v", option)
 	}
 
-	url := "https://api.github.com/orgs/" + config.OrgaName + "repos?" + option
+	url, err := url.JoinPath("https://api.github.com/orgs/", config.OrgaName, "repos?"+option)
+	if err != nil {
+		logr.Errorf("[API] failed creating the url: %v\n", err)
+	}
+
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		logr.Errorf("[API] failed creating the request: %v\n", err)
@@ -68,7 +73,11 @@ func GetUserList(user *config.User) []string {
 		logr.Infof("[API] Using affiliation option: %v", option)
 	}
 
-	url := "https://api.github.com/user/repos?" + option
+	url, err := url.JoinPath("https://api.github.com/user/repos?" + option)
+	if err != nil {
+		logr.Errorf("[API] failed creating the url: %v\n", err)
+	}
+
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		logr.Errorf("[API] failed creating the request: %v\n", err)
