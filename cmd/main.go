@@ -33,7 +33,7 @@ func main() {
 	}
 
 	UpdateInterval := cron.New()
-	UpdateInterval.AddFunc("*/3 * * * *", func() {
+	UpdateInterval.AddFunc(config.UpdateInterval, func() {
 		gogit.UpdateLocalCopies(orgaRepoNames, config, nil)
 	})
 	go UpdateInterval.Start()

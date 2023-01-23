@@ -2,7 +2,6 @@ package gitapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -68,7 +67,6 @@ func GetRepoList(config *config.Config, user *config.User) []Repository {
 }
 
 func buildURL(baseURL string, paramType string, param string) string {
-	fmt.Printf("using paramType: %v with param: %v", paramType, param)
 	url, err := url.Parse(baseURL)
 	if err != nil {
 		logr.Errorf("[API] failed creating the url: %v\n", err)

@@ -19,7 +19,8 @@ type Config struct {
 	CloneUserRepos bool            `yaml:"CloneUserRepos"`
 	Users          map[string]User `yaml:"Users"`
 
-	OutputPath string `yaml:"OutputPath"`
+	OutputPath 	   string `yaml:"OutputPath"`
+	UpdateInterval string `yaml:"UpdateInterval"`
 
 	ListReferences bool `yaml:"ListReferences"`
 	LogCommits     bool `yaml:"LogCommits"`
