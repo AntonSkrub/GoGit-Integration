@@ -12,6 +12,14 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
+type Repo struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	FullName string `json:"full_name"`
+	Private  bool   `json:"private"`
+	Owner    string `json:"owner.login"`
+}
+
 func GetRepoList(config *config.Config, user *config.User) []string {
 	token, option, reqUrl := "", "", ""
 	var err error
@@ -54,7 +62,7 @@ func GetRepoList(config *config.Config, user *config.User) []string {
 	}
 
 	// Unmarshal the json response to get the repository names
-	var repos []map[string]interface{}
+	var repos []Repo
 	err = json.Unmarshal(body, &repos)
 	if err != nil {
 		logr.Errorf("[API] failed unmarshalling the json: %v\n", err)
@@ -64,12 +72,7 @@ func GetRepoList(config *config.Config, user *config.User) []string {
 	var repoNames []string
 	for _, repo := range repos {
 		i++
-		name, ok := repo["full_name"].(string)
-		if !ok {
-			logr.Errorf("[API] failed converting the repository name to string: %v\n", err)
-		} else {
-			repoNames = append(repoNames, name)
-		}
+		repoNames = append(repoNames, repo.FullName)
 	}
 	logr.Printf("[API] Found %v Repositories!", i)
 	return repoNames

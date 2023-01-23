@@ -1,7 +1,6 @@
 package gogit
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -73,9 +72,6 @@ func Clone(name string, config *config.Config, user *config.User) {
 	}
 
 	auth := buildAuth(config, user)
-	//print the auth to the console
-	fmt.Printf("Auth: %v", auth)
-	// os.Exit(1)
 	// Clone the repository to the given directory
 	logr.Infof("[GoGit] Cloning the %v repository to %v", url, config.OutputPath+name)
 	r, err := git.PlainClone(config.OutputPath+name, false, &git.CloneOptions{
