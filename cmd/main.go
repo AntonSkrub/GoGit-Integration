@@ -17,7 +17,7 @@ func main() {
 	config := config.GetConfig()
 	logr.SetLevel(logr.Level(config.LogLevel))
 
-	orgaRepoNames := gitapi.GetList(config)
+	orgaRepoNames := gitapi.GetRepoList(config, nil)
 	logr.Info("Found ", len(orgaRepoNames), " repositories in the organization")
 
 	gogit.UpdateLocalCopies(orgaRepoNames, config, nil)
@@ -26,7 +26,7 @@ func main() {
 	if config.CloneUserRepos {
 		for _, user := range config.Users {
 			logr.Printf("[API] Found user: %v", user)
-			userRepoNames := gitapi.GetUserList(&user)
+			userRepoNames := gitapi.GetRepoList(config, &user)
 			logr.Info("Found ", len(userRepoNames), " repositories on the user account of ", user.Name)
 			gogit.UpdateLocalCopies(userRepoNames, config, &user)
 		}

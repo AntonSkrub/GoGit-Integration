@@ -1,6 +1,7 @@
 package gogit
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -38,18 +39,7 @@ func UpdateLocalCopies(names []string, config *config.Config, user *config.User)
 		}
 
 		// Pull the latest changes from the origin and merge into the current branch
-		var auth *http.BasicAuth
-		if user != nil {
-			auth = &http.BasicAuth{
-				Username: user.Name,
-				Password: user.Token,
-			}
-		} else {
-			auth = &http.BasicAuth{
-				Username: config.OrgaName,
-				Password: config.OrgaToken,
-			}
-		}
+		auth := buildAuth(config, user)
 
 		logr.Infof("[Git] Pulling the latest changes from the origin of %v", names[i])
 		err = w.Pull(&git.PullOptions{
@@ -76,25 +66,16 @@ func UpdateLocalCopies(names []string, config *config.Config, user *config.User)
 }
 
 func Clone(name string, config *config.Config, user *config.User) {
-	url, err := url.JoinPath("https://githuib.com", name+".git")
+	url, err := url.JoinPath("https://github.com", name+".git")
 	if err != nil {
 		logr.Errorf("[GoGit] failed creating the url: %v\n", err)
 		return
 	}
 
-	var auth *http.BasicAuth
-	if user != nil {
-		auth = &http.BasicAuth{
-			Username: user.Name,
-			Password: user.Token,
-		}
-	} else {
-		auth = &http.BasicAuth{
-			Username: config.OrgaName,
-			Password: config.OrgaToken,
-		}
-	}
-
+	auth := buildAuth(config, user)
+	//print the auth to the console
+	fmt.Printf("Auth: %v", auth)
+	// os.Exit(1)
 	// Clone the repository to the given directory
 	logr.Infof("[GoGit] Cloning the %v repository to %v", url, config.OutputPath+name)
 	r, err := git.PlainClone(config.OutputPath+name, false, &git.CloneOptions{
@@ -114,4 +95,20 @@ func Clone(name string, config *config.Config, user *config.User) {
 		AccessRepo(r, config)
 	}
 	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, config.OutputPath+name)
+}
+
+func buildAuth(config *config.Config, user *config.User) *http.BasicAuth {
+	var auth *http.BasicAuth
+	if user != nil {
+		auth = &http.BasicAuth{
+			Username: user.Name,
+			Password: user.Token,
+		}
+	} else {
+		auth = &http.BasicAuth{
+			Username: config.OrgaName,
+			Password: config.OrgaToken,
+		}
+	}
+	return auth
 }
