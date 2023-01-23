@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
+	"github.com/AntonSkrub/GoGit-Integration/pkg/gitapi"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -13,14 +14,19 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
-func UpdateLocalCopies(names []string, config *config.Config, user *config.User) {
-	for i := 0; i < len(names); i++ {
-		r, err := git.PlainOpen(filepath.Join(config.OutputPath, names[i]))
+func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, user *config.User) {
+	var i int
+	for _, repo := range repos {
+		i++
+		if i == 5 {
+			logr.Info("[Git] V01 Stopping after 5 repos")
+			break
+		}
+		r, err := git.PlainOpen(filepath.Join(config.OutputPath, repo.FullName))
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
-				logr.Errorf("[Git] Couldn't find a local copy of Repository %v", names[i])
-
-				Clone(names[i], config, user)
+				logr.Errorf("[Git] Couldn't find a local copy of Repository %v", repo.FullName)
+				Clone(repo.FullName, config, user)
 			} else {
 				logr.Errorf("[Git] failed opening the repository: %v\n", err)
 			}
@@ -36,7 +42,7 @@ func UpdateLocalCopies(names []string, config *config.Config, user *config.User)
 		// Pull the latest changes from the origin and merge into the current branch
 		auth := buildAuth(config, user)
 
-		logr.Infof("[Git] Pulling the latest changes from the origin of %v", names[i])
+		logr.Infof("[Git] Pulling the latest changes from the origin of %v", repo.FullName)
 		err = w.Pull(&git.PullOptions{
 			RemoteName:   "origin",
 			SingleBranch: false,
@@ -45,7 +51,7 @@ func UpdateLocalCopies(names []string, config *config.Config, user *config.User)
 		})
 		if err != nil {
 			if err == git.NoErrAlreadyUpToDate {
-				logr.Errorf("[Git] Repository %v already up to date", names[i])
+				logr.Errorf("[Git] Repository %v already up to date", repo.FullName)
 			} else {
 				logr.Errorf("[Git] failed pulling the repository: %v\n", err)
 				return
@@ -56,7 +62,7 @@ func UpdateLocalCopies(names []string, config *config.Config, user *config.User)
 		if config.ListReferences || config.LogCommits {
 			AccessRepo(r, config)
 		}
-		logr.Infof("[Git] Finished updating the %v repository", names[i])
+		logr.Infof("[Git] Finished updating the %v repository", repo.FullName)
 	}
 }
 

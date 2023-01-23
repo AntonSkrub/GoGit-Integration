@@ -13,7 +13,7 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
-type Repo struct {
+type Repository struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	FullName string `json:"full_name"`
@@ -21,7 +21,7 @@ type Repo struct {
 	Owner    string `json:"owner.login"`
 }
 
-func GetRepoList(config *config.Config, user *config.User) []string {
+func GetRepoList(config *config.Config, user *config.User) []Repository {
 	token, reqUrl := "", ""
 	var err error
 	if user != nil {
@@ -57,20 +57,14 @@ func GetRepoList(config *config.Config, user *config.User) []string {
 	}
 
 	// Unmarshal the json response to get the repository names
-	var repos []Repo
+	var repos []Repository
 	err = json.Unmarshal(body, &repos)
 	if err != nil {
 		logr.Errorf("[API] failed unmarshalling the json: %v\n", err)
 	}
 
-	i := 0
-	var repoNames []string
-	for _, repo := range repos {
-		i++
-		repoNames = append(repoNames, repo.FullName)
-	}
-	logr.Printf("[API] Found %v Repositories!", i)
-	return repoNames
+	logr.Printf("[API] Found %v Repositories!", len(repos))
+	return repos
 }
 
 func buildURL(baseURL string, paramType string, param string) string {
