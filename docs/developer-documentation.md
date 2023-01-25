@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-- [GoGit-Integration Developer documentation](#gogit-integration-developer-documentaiton)
+- [GoGit-Integration Developer documentation](#gogit-integration-developer-documentation)
   - [Table of Contents](#table-of-contents)
   - [1 Development](#1-development)
   - [2 Development environment](#2-development-environment)
