@@ -7,7 +7,7 @@ The GoGit-Integration is a small application which maintains local copies of an 
 ## Development
 
 The Project was developed by:
-```
+```text
 Anton Paul
 
 Avanis GmbH

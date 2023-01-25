@@ -2,12 +2,12 @@
 
 ## Table of Contents
 
-  - [GoGit-Integration Help](#gogit-integration-help)
-    - [Table of Contents](#table-of-contents)
-    - [1 License](#1-license)
-    - [2 Installation](#1-installation)
-    - [3 Configuration](#3-configuration)
-    - [4 Troubleshooting](#4-troubleshooting)
+- [GoGit-Integration Help](#gogit-integration-help)
+  - [Table of Contents](#table-of-contents)
+  - [1 License](#1-license)
+  - [2 Installation](#2-installation)
+  - [3 Configuration](#3-configuration)
+  - [4 Troubleshooting](#4-troubleshooting)
 
 ## 1 License
 
@@ -25,7 +25,7 @@ Tho it has only really been tested on Windows 11.
 ## 2.2 Prerequisites
 
 Install [Go 1.19](https://golang.org/doc/install) or newer.
-```
+```text
 https://go.dev/dl/go1.19.5.windows-amd64.msi
 ```
 
@@ -33,7 +33,8 @@ https://go.dev/dl/go1.19.5.windows-amd64.msi
 
 ## 2.3.1 Download the latest release
 
-Download the latest release from the [releases page]().
+Download the latest release from the [releases page](https://github.com/AntonSkrub/GoGit-Integration/releases).
+There are no releases yet tho.
 Extract the archive and run the executable file called `GoGitIntegration.exe`.
 
 ### 2.3.2 Build from source

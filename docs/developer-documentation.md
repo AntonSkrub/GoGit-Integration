@@ -2,17 +2,18 @@
 
 ## Table of Contents
 
-  - [GoGit-Integration Developer documentation](#gogit-integration-developer-documentaion)
-    - [Table of Contents](#table-of-contents)
-    - [1 Development](#1-development)
-    - [2 Development environment](#2-development-environment)
-    - [3 Dependencies](#3-depenedencies)
-    - [4 Building requirements](#4-building-requirmenets)
-    - [5 Versioning](#5-versioning)
-    - [6 Packages](#6-packages)
+- [GoGit-Integration Developer documentation](#gogit-integration-developer-documentaiton)
+  - [Table of Contents](#table-of-contents)
+  - [1 Development](#1-development)
+  - [2 Development environment](#2-development-environment)
+  - [3 Dependencies](#3-dependencies)
+  - [4 Building requirements](#4-building-requirements)
+  - [5 Versioning](#5-versioning)
+  - [6 Packages](#6-packages)
 
 ## 1 Development
-```
+
+```text
 Anton Paul
 
 Avanis GmbH
@@ -91,7 +92,7 @@ The `gitapi` package provides methods to get a list of the repository names to c
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
-| config | Provides config-values like organization-names and user-names |
+| config | Provides config-values like organization-names and usernames |
 
 ### gogit
 
