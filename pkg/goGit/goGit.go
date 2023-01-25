@@ -15,13 +15,7 @@ import (
 )
 
 func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, user *config.User) {
-	var i int
 	for _, repo := range repos {
-		i++
-		if i == 5 {
-			logr.Info("[Git] V01 Stopping after 5 repos")
-			break
-		}
 		r, err := git.PlainOpen(filepath.Join(config.OutputPath, repo.FullName))
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
