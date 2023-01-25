@@ -12,19 +12,26 @@ var instance *Config
 var configPath = "./config"
 
 type Config struct {
-	OrgaName     string `yaml:"OrgaName"`
-	OrgaToken    string `yaml:"OrgaToken"`
-	OrgaRepoType string `yaml:"OrgaRepoType"`
+	Organizations map[string]Organization `yaml:"Organizations"`
+	OrgaName      string                  `yaml:"OrgaName"`
+	OrgaToken     string                  `yaml:"OrgaToken"`
+	OrgaRepoType  string                  `yaml:"OrgaRepoType"`
 
 	CloneUserRepos bool            `yaml:"CloneUserRepos"`
 	Users          map[string]User `yaml:"Users"`
 
-	OutputPath 	   string `yaml:"OutputPath"`
+	OutputPath     string `yaml:"OutputPath"`
 	UpdateInterval string `yaml:"UpdateInterval"`
 
 	ListReferences bool `yaml:"ListReferences"`
 	LogCommits     bool `yaml:"LogCommits"`
 	LogLevel       int  `yaml:"LogLevel"`
+}
+
+type Organization struct {
+	Name  string `yaml:"Name"`
+	Token string `yaml:"Token"`
+	Type  string `yaml:"Type"`
 }
 
 type User struct {
@@ -70,9 +77,29 @@ func initConfig() error {
 
 func createConfig() error {
 	config := &Config{
-		OrgaName:       "Default Orga",
-		OrgaToken:      "",
+		OrgaName:     "Default Orga",
+		OrgaToken:    "",
+		OrgaRepoType: "all",
+
+		Organizations: map[string]Organization{
+			"1st": {
+				Name:  "1st Orga",
+				Token: "",
+				Type:  "all",
+			},
+		},
+
+		CloneUserRepos: true,
+		Users: map[string]User{
+			"1st": {
+				Name:        "1st User",
+				Token:       "",
+				Affiliation: "owner",
+			},
+		},
 		OutputPath:     "../Repo-Backups/",
+		UpdateInterval: "0 */12 * * *",
+
 		ListReferences: true,
 		LogCommits:     false,
 		LogLevel:       6,
