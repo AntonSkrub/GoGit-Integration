@@ -1,45 +1,101 @@
 package config
 
 import (
-	"fmt"
 	"os"
+	"path/filepath"
 
+	logr "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
 var instance *Config
-var configPath = "./config/config.yml"
+var configPath = "./config"
 
 type Config struct {
-	OrgaName  string `yaml:"OrgaName"`
-	OrgaToken string `yaml:"OrgaToken"`
+	OrgaName     string `yaml:"OrgaName"`
+	OrgaToken    string `yaml:"OrgaToken"`
+	OrgaRepoType string `yaml:"OrgaRepoType"`
 
-	UserName  string `yaml:"UserName"`
-	UserToken string `yaml:"UserToken"`
+	CloneUserRepos bool            `yaml:"CloneUserRepos"`
+	Users          map[string]User `yaml:"Users"`
 
-	OutputPath string `yaml:"OutputPath"`
+	OutputPath 	   string `yaml:"OutputPath"`
+	UpdateInterval string `yaml:"UpdateInterval"`
 
 	ListReferences bool `yaml:"ListReferences"`
 	LogCommits     bool `yaml:"LogCommits"`
 	LogLevel       int  `yaml:"LogLevel"`
 }
 
-func GetConfig() (*Config, error) {
+type User struct {
+	Name        string `yaml:"Name"`
+	Token       string `yaml:"Token"`
+	Affiliation string `yaml:"Affiliation"`
+}
+
+func GetConfig() *Config {
+	if instance == nil {
+		err := initConfig()
+		if err != nil {
+			logr.Fatalf("[config] Error initializing the config: %s", err.Error())
+		}
+	}
+
+	return instance
+}
+
+func initConfig() error {
 	instance = &Config{}
 
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return instance, fmt.Errorf("[config] Couldn't find config file: %s", err.Error())
+	if _, err := os.Stat(filepath.Join(configPath, "config.yml")); err != nil {
+		err = createConfig()
+		if err != nil {
+			return err
+		}
 	}
 
-	file, err := os.ReadFile(configPath)
+	file, err := os.Open(filepath.Join(configPath, "config.yml"))
 	if err != nil {
-		return instance, fmt.Errorf("[config] Could not read config file: %s", err.Error())
+		return err
 	}
+	defer file.Close()
 
-	err = yaml.Unmarshal(file, instance)
+	err = yaml.NewDecoder(file).Decode(instance)
 	if err != nil {
-		return instance, fmt.Errorf("[config] Error parsing the config: %s", err.Error())
+		return err
 	}
 
-	return instance, nil
+	return nil
+}
+
+func createConfig() error {
+	config := &Config{
+		OrgaName:       "Default Orga",
+		OrgaToken:      "",
+		OutputPath:     "../Repo-Backups/",
+		ListReferences: true,
+		LogCommits:     false,
+		LogLevel:       6,
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Stat(configPath)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(configPath, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = os.WriteFile(filepath.Join(configPath, "config.yml"), data, 0600)
+	if err != nil {
+		return err
+	}
+	logr.Info("[config] created default configuration, exiting...")
+	os.Exit(0)
+	return nil
 }
