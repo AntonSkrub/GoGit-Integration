@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
 	"github.com/AntonSkrub/GoGit-Integration/pkg/gitapi"
@@ -14,8 +15,21 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
-func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, orga *config.Organization, user *config.User) {
+func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, orga *config.Account, user *config.Account) {
 	for _, repo := range repos {
+		if orga != nil {
+			if orga.ValidateName && !strings.Contains(repo.FullName, orga.Name) {
+				logr.Infof("[Git] Skipping repository %v because it doesn't contain the organization name", repo.FullName)
+				continue
+			}
+		}
+		if user != nil {
+			if user.ValidateName && !strings.Contains(repo.FullName, user.Name) {
+				logr.Infof("[Git] Skipping repository %v because it doesn't contain the user name", repo.FullName)
+				continue
+			}
+		}
+
 		r, err := git.PlainOpen(filepath.Join(config.OutputPath, repo.FullName))
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
@@ -60,7 +74,7 @@ func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, orga *c
 	}
 }
 
-func Clone(name string, config *config.Config, orga *config.Organization, user *config.User) {
+func Clone(name string, config *config.Config, orga *config.Account, user *config.Account) {
 	url, err := url.JoinPath("https://github.com", name+".git")
 	if err != nil {
 		logr.Errorf("[GoGit] failed creating the url: %v\n", err)
@@ -90,14 +104,14 @@ func Clone(name string, config *config.Config, orga *config.Organization, user *
 	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, path)
 }
 
-func buildAuth(orga *config.Organization, user *config.User) *http.BasicAuth {
+func buildAuth(orga *config.Account, user *config.Account) *http.BasicAuth {
 	var auth *http.BasicAuth
-	auth = &http.BasicAuth{
-		Username: orga.Name,
-		Password: orga.Token,
-	}
-
-	if user != nil {
+	if orga != nil {
+		auth = &http.BasicAuth{
+			Username: orga.Name,
+			Password: orga.Token,
+		}
+	} else if user != nil {
 		auth = &http.BasicAuth{
 			Username: user.Name,
 			Password: user.Token,
