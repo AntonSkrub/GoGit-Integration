@@ -54,6 +54,10 @@ func GetRepoList(orga *config.Account, user *config.Account) []Repository {
 	if err != nil {
 		logr.Errorf("[API] failed reading the response body: %v\n", err)
 	}
+	if resp.StatusCode != 200 {
+		logr.Errorf("[API] Error %d: %s", resp.StatusCode, resp.Status)
+		return nil
+	}
 
 	// Unmarshal the json response to get the repository names
 	var repos []Repository
@@ -62,7 +66,6 @@ func GetRepoList(orga *config.Account, user *config.Account) []Repository {
 		logr.Errorf("[API] failed unmarshalling the json: %v\n", err)
 	}
 
-	logr.Printf("[API] Found %v Repositories!", len(repos))
 	return repos
 }
 

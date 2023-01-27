@@ -38,7 +38,7 @@ func main() {
 			logr.Printf("[API] Found user: %v", user)
 			userRepoNames = gitapi.GetRepoList(nil, &user)
 			logr.Info("[main] Found ", len(userRepoNames), " repositories on the user account of ", user.Name)
-			// gogit.UpdateLocalCopies(userRepoNames, config, nil, &user)
+			gogit.UpdateLocalCopies(userRepoNames, config, nil, &user)
 		} else {
 			logr.Infof("[main] Skipping user %v because it's not set to backup repositories", user.Name)
 			continue
