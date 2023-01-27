@@ -11,7 +11,7 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
-func AccessRepo(r *git.Repository, config *config.Config) {
+func AccessRepo(r *git.Repository, config *config.Config, account *config.Account) {
 	remote, err := r.Remote("origin")
 	if err != nil {
 		logr.Errorf("[GoGit] failed getting the remote: %v\n", err)
@@ -19,8 +19,8 @@ func AccessRepo(r *git.Repository, config *config.Config) {
 	}
 	refList, err := remote.List(&git.ListOptions{
 		Auth: &http.BasicAuth{
-			Username: config.OrgaName,
-			Password: config.OrgaToken,
+			Username: account.Name,
+			Password: account.Token,
 		},
 	})
 	if err != nil {

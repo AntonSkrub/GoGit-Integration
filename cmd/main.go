@@ -17,65 +17,34 @@ func main() {
 	config := config.GetConfig()
 	logr.SetLevel(logr.Level(config.LogLevel))
 
-	// loop through the organizations in the config and log each organizations name to the console
-	orgaRepoNames := []gitapi.Repository{}
-	for _, orga := range config.Organizations {
-		if orga.BackupRepos {
-			logr.Printf("[API] Found organization: %v", orga.Name)
-			orgaRepoNames = gitapi.GetRepoList(&orga, nil)
-			logr.Info("[main] Found ", len(orgaRepoNames), " repositories in the organization ", orga.Name)
-			gogit.UpdateLocalCopies(orgaRepoNames, config, &orga, nil)
+	repoNames := []gitapi.Repository{}
+	for _, account := range config.Accounts {
+		if account.BackupRepos {
+			logr.Printf("[API] Found account: %v", account)
+			repoNames = gitapi.GetRepoList(&account)
+			logr.Info("[main] Found ", len(repoNames), " repositories on the user account of ", account.Name)
+			gogit.UpdateLocalCopies(repoNames, config, &account)
 		} else {
-			logr.Infof("[main] Skipping organization %v because it's not set to backup repositories", orga.Name)
+			logr.Infof("[main] Skipping account %v because it's not set to backup repositories", account.Name)
 			continue
 		}
 	}
 
-	// loop through the users in the config and log each users name to the console
-	userRepoNames := []gitapi.Repository{}
-	for _, user := range config.Users {
-		if user.BackupRepos {
-			logr.Printf("[API] Found user: %v", user)
-			userRepoNames = gitapi.GetRepoList(nil, &user)
-			logr.Info("[main] Found ", len(userRepoNames), " repositories on the user account of ", user.Name)
-			gogit.UpdateLocalCopies(userRepoNames, config, nil, &user)
-		} else {
-			logr.Infof("[main] Skipping user %v because it's not set to backup repositories", user.Name)
-			continue
-		}
-	}
-
-	OrgaCron := cron.New()
-	OrgaCron.AddFunc(config.UpdateInterval, func() {
-		for _, orga := range config.Organizations {
-			if orga.BackupRepos {
-				logr.Printf("[API] Found organization: %v", orga.Name)
-				orgaRepoNames = gitapi.GetRepoList(&orga, nil)
-				logr.Info("[main] Found ", len(orgaRepoNames), " repositories in the organization ", orga.Name)
-				gogit.UpdateLocalCopies(orgaRepoNames, config, &orga, nil)
+	BulkCron := cron.New()
+	BulkCron.AddFunc(config.UpdateInterval, func() {
+		for _, account := range config.Accounts {
+			if account.BackupRepos {
+				logr.Printf("[API] Found user: %v", account)
+				repoNames = gitapi.GetRepoList(&account)
+				logr.Info("[main] Found ", len(repoNames), " repositories on the account account of ", account.Name)
+				gogit.UpdateLocalCopies(repoNames, config, &account)
 			} else {
-				logr.Infof("[main] Skipping organization %v because it's not set to backup repositories", orga.Name)
+				logr.Infof("[main] Skipping account %v because it's not set to backup repositories", account.Name)
 				continue
 			}
 		}
 	})
-	OrgaCron.Start()
-
-	UserCron := cron.New()
-	UserCron.AddFunc(config.UpdateInterval, func() {
-		for _, user := range config.Users {
-			if user.BackupRepos {
-				logr.Printf("[API] Found user: %v", user)
-				userRepoNames = gitapi.GetRepoList(nil, &user)
-				logr.Info("[main] Found ", len(userRepoNames), " repositories on the user account of ", user.Name)
-				gogit.UpdateLocalCopies(userRepoNames, config, nil, &user)
-			} else {
-				logr.Infof("[main] Skipping user %v because it's not set to backup repositories", user.Name)
-				continue
-			}
-		}
-	})
-	UserCron.Start()
+	BulkCron.Start()
 
 	logr.Info("The initial run/backup cycle has completed")
 	logr.Info("The cron jobs have been setup to run in the background ...")
@@ -85,8 +54,7 @@ func main() {
 	<-sigChan
 	logr.Info("Received an interrupt signal, stopping the cron jobs ...")
 
-	UserCron.Stop()
-	OrgaCron.Stop()
+	BulkCron.Stop()
 	logr.Info("Cron jobs stopped, exiting ...")
 	os.Exit(0)
 }

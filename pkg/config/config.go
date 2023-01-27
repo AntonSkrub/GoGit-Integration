@@ -12,9 +12,7 @@ var instance *Config
 var configPath = "./config"
 
 type Config struct {
-	Organizations map[string]Account `yaml:"Organizations"`
-
-	Users map[string]Account `yaml:"Users"`
+	Accounts map[string]Account `yaml:"Accounts"`
 
 	OutputPath     string `yaml:"OutputPath"`
 	UpdateInterval string `yaml:"UpdateInterval"`
@@ -27,6 +25,7 @@ type Config struct {
 type Account struct {
 	Name         string `yaml:"Name"`
 	Token        string `yaml:"Token"`
+	Type 	     string `yaml:"Type"` // "user" or "orga"
 	Option       string `yaml:"Option"`
 	BackupRepos  bool   `yaml:"BackupRepos"`
 	ValidateName bool   `yaml:"ValidateName"` // Whether the User-/OrgaName has to be contained in the "full_name" of the repository
@@ -69,21 +68,12 @@ func initConfig() error {
 
 func createConfig() error {
 	config := &Config{
-		Organizations: map[string]Account{
+		Accounts: map[string]Account{
 			"1st": {
-				Name:         "1st Orga",
-				Token:        "",
-				Option:       "all",
-				BackupRepos:  true,
-				ValidateName: false,
-			},
-		},
-
-		Users: map[string]Account{
-			"1st": {
-				Name:         "1st User",
-				Token:        "",
-				Option:       "owner",
+				Name:         "GitHub-Username",
+				Token:        "Github-Access-Token",
+				Type:		 "organization/user",
+				Option:       "all/owner,collaborator",
 				BackupRepos:  true,
 				ValidateName: false,
 			},

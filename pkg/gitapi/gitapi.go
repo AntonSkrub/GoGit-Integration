@@ -20,20 +20,26 @@ type Repository struct {
 	Owner    string `json:"owner.login"`
 }
 
-func GetRepoList(orga *config.Account, user *config.Account) []Repository {
+func GetRepoList(account *config.Account) []Repository {
 	token, reqUrl := "", ""
 	var err error
-	if user != nil {
-		reqUrl = buildURL("https://api.github.com/user/repos", "affiliation", user.Option)
-		token = user.Token
-	} else {
-		baseUrl, err := url.JoinPath("https://api.github.com/orgs/", orga.Name, "repos")
+	// has error on GoSUCK with current config
+	if account.Type == "organization" {
+		baseUrl, err := url.JoinPath("https://api.github.com/orgs/", account.Name, "repos")
 		if err != nil {
 			logr.Errorf("[API] failed creating the url: %v\n", err)
 		}
-		reqUrl = buildURL(baseUrl, "type", orga.Option)
-		token = orga.Token
+		reqUrl = buildURL(baseUrl, "type", account.Option)
+		token = account.Token
+	} else if account.Type == "user" {
+		reqUrl = buildURL("https://api.github.com/user/repos", "affiliation", account.Option)
+		token = account.Token
 	}
+	
+	// works with current config
+	// reqUrl = "https://api.github.com/user/repos"
+	// token = account.Token
+
 
 	req, err := http.NewRequest(http.MethodGet, reqUrl, nil)
 	if err != nil {
@@ -68,6 +74,7 @@ func GetRepoList(orga *config.Account, user *config.Account) []Repository {
 
 	return repos
 }
+
 
 func buildURL(baseURL string, paramType string, param string) string {
 	url, err := url.Parse(baseURL)
