@@ -19,8 +19,7 @@ All right reserved.
 
 ## 2.1 System Requirements
 
-Since the GoGit-Integration is written in Go, it can be run on any system that supports Go.
-Tho it has only really been tested on Windows 11.
+Since the GoGit-Integration is written in Go, the system requirements are fairly slim and it should be able to run on most systems.
 
 ## 2.2 Prerequisites
 
@@ -52,47 +51,39 @@ This will create an executable file called `GoGitIntegration.exe` in the root di
 At first startup, the application will create a default configuration file called `config.yml` in the root directory of the project.
 The configuration file contains the following options:
 
-`OrgaName: string`
+`Organizations: map[string]Account`
 
-The name of the GitHub organization to clone the repositories from.
-
-`OrgaToken: string`
-
-The access token of the GitHub organization to clone the repositories from.
-
-`OrgaRepoType: string`
-
-The type of repositories to clone from the organization. Can be either `all`, `public` or `private`.
-
-`CloneUserRepos: bool`
-
-Whether to clone repositories from configured users.
-
-`Users: map[string]User`
-
-A map of users to clone the repositories from. It contains the following options:
+A map of organizations to clone the repositories from. It contains the following options:
 
 `Name: string`
 
-The name of the user to clone the repositories from.
+The name of the organization to clone the repositories from.
 
 `Token: string`
 
-The token of the user to clone the repositories from.
+The access token of the organization
 
-`Affiliation: string`
+`Option: string`
 
-The affiliation of the user to the repositories to clone. Can be either `owner`, `collaborator` or `organization_member`.
+Determines which repositories should be cloned. 
 
-Example configuration:
+The following options are available, of which the first is the default option:
+- `all`: Clones all repositories of the organization.
+- `public`: Clones all public repositories of the organization.
+- `private`: Clones all private repositories of the organization.
+- `forks`: Clones all forked repositories of the organization.
+- `sources`: Clones all source repositories of the organization.
+- `member`: Clones all repositories of the organization, in which the user is a member.
 
-```yaml
-Users:
-  1st:
-    Name: "AntonSkrub/"
-    Token: AccessToken
-    Affiliation: "owner,collaborator,organization_member"
-```
+`BackupRepos: bool`
+
+Whether to backup the repositories of the given organization.
+If set to `true` the application clones the repositories of the organization to the `OutputPath` directory. Otherwise the organization and it's repositories will be skipped.
+
+`ValidateName: bool`
+
+Whether to validate the name of the organization. 
+If set to `true` the application will check if the `full_name` of the repository contains the name of the organization and if not, the repository will not be cloned. Otherwise the application will clone all repositories found in the organization.
 
 `OutputPath: string`
 

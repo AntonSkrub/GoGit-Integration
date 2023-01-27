@@ -13,11 +13,7 @@ var configPath = "./config"
 
 type Config struct {
 	Organizations map[string]Account `yaml:"Organizations"`
-	OrgaName      string             `yaml:"OrgaName"`
-	OrgaToken     string             `yaml:"OrgaToken"`
-	OrgaRepoType  string             `yaml:"OrgaRepoType"`
 
-	// CloneUserRepos bool               `yaml:"CloneUserRepos"`
 	Users map[string]Account `yaml:"Users"`
 
 	OutputPath     string `yaml:"OutputPath"`
@@ -32,8 +28,8 @@ type Account struct {
 	Name         string `yaml:"Name"`
 	Token        string `yaml:"Token"`
 	Option       string `yaml:"Option"`
-	ValidateName bool   `yaml:"ValidateName"` // Whether the User-/OrgaName has to be contained in the "full_name" of the repository
 	BackupRepos  bool   `yaml:"BackupRepos"`
+	ValidateName bool   `yaml:"ValidateName"` // Whether the User-/OrgaName has to be contained in the "full_name" of the repository
 }
 
 func GetConfig() *Config {
@@ -73,28 +69,23 @@ func initConfig() error {
 
 func createConfig() error {
 	config := &Config{
-		OrgaName:     "Default Orga",
-		OrgaToken:    "",
-		OrgaRepoType: "all",
-
 		Organizations: map[string]Account{
 			"1st": {
 				Name:         "1st Orga",
 				Token:        "",
 				Option:       "all",
-				ValidateName: false,
 				BackupRepos:  true,
+				ValidateName: false,
 			},
 		},
 
-		// CloneUserRepos: true,
 		Users: map[string]Account{
 			"1st": {
 				Name:         "1st User",
 				Token:        "",
 				Option:       "owner",
-				ValidateName: false,
 				BackupRepos:  true,
+				ValidateName: false,
 			},
 		},
 		OutputPath:     "../Repo-Backups/",
