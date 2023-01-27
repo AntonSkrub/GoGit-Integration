@@ -12,13 +12,13 @@ var instance *Config
 var configPath = "./config"
 
 type Config struct {
-	Organizations map[string]Organization `yaml:"Organizations"`
-	OrgaName      string                  `yaml:"OrgaName"`
-	OrgaToken     string                  `yaml:"OrgaToken"`
-	OrgaRepoType  string                  `yaml:"OrgaRepoType"`
+	Organizations map[string]Account `yaml:"Organizations"`
+	OrgaName      string             `yaml:"OrgaName"`
+	OrgaToken     string             `yaml:"OrgaToken"`
+	OrgaRepoType  string             `yaml:"OrgaRepoType"`
 
-	CloneUserRepos bool            `yaml:"CloneUserRepos"`
-	Users          map[string]User `yaml:"Users"`
+	// CloneUserRepos bool               `yaml:"CloneUserRepos"`
+	Users map[string]Account `yaml:"Users"`
 
 	OutputPath     string `yaml:"OutputPath"`
 	UpdateInterval string `yaml:"UpdateInterval"`
@@ -28,16 +28,12 @@ type Config struct {
 	LogLevel       int  `yaml:"LogLevel"`
 }
 
-type Organization struct {
-	Name  string `yaml:"Name"`
-	Token string `yaml:"Token"`
-	Type  string `yaml:"Type"`
-}
-
-type User struct {
-	Name        string `yaml:"Name"`
-	Token       string `yaml:"Token"`
-	Affiliation string `yaml:"Affiliation"`
+type Account struct {
+	Name         string `yaml:"Name"`
+	Token        string `yaml:"Token"`
+	Option       string `yaml:"Option"`
+	ValidateName bool   `yaml:"ValidateName"` // Whether the User-/OrgaName has to be contained in the "full_name" of the repository
+	BackupRepos  bool   `yaml:"BackupRepos"`
 }
 
 func GetConfig() *Config {
@@ -81,24 +77,28 @@ func createConfig() error {
 		OrgaToken:    "",
 		OrgaRepoType: "all",
 
-		Organizations: map[string]Organization{
+		Organizations: map[string]Account{
 			"1st": {
-				Name:  "1st Orga",
-				Token: "",
-				Type:  "all",
+				Name:         "1st Orga",
+				Token:        "",
+				Option:       "all",
+				ValidateName: false,
+				BackupRepos:  true,
 			},
 		},
 
-		CloneUserRepos: true,
-		Users: map[string]User{
+		// CloneUserRepos: true,
+		Users: map[string]Account{
 			"1st": {
-				Name:        "1st User",
-				Token:       "",
-				Affiliation: "owner",
+				Name:         "1st User",
+				Token:        "",
+				Option:       "owner",
+				ValidateName: false,
+				BackupRepos:  true,
 			},
 		},
 		OutputPath:     "../Repo-Backups/",
-		UpdateInterval: "0 */12 * * *",
+		UpdateInterval: "0 */12 * * * *",
 
 		ListReferences: true,
 		LogCommits:     false,
