@@ -77,6 +77,9 @@ func main() {
 	})
 	UserCron.Start()
 
+	logr.Info("The initial run/backup cycle has completed")
+	logr.Info("The cron jobs have been setup to run in the background ...")
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 	<-sigChan
