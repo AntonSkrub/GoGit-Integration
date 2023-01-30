@@ -25,7 +25,6 @@ type Config struct {
 type Account struct {
 	Name         string `yaml:"Name"`
 	Token        string `yaml:"Token"`
-	Type 	     string `yaml:"Type"` // "user" or "orga"
 	Option       string `yaml:"Option"`
 	BackupRepos  bool   `yaml:"BackupRepos"`
 	ValidateName bool   `yaml:"ValidateName"` // Whether the User-/OrgaName has to be contained in the "full_name" of the repository
@@ -72,7 +71,6 @@ func createConfig() error {
 			"1st": {
 				Name:         "GitHub-Username",
 				Token:        "Github-Access-Token",
-				Type:		 "organization/user",
 				Option:       "all/owner,collaborator",
 				BackupRepos:  true,
 				ValidateName: false,

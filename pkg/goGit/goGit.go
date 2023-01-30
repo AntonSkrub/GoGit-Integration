@@ -18,9 +18,9 @@ import (
 func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, account *config.Account) {
 	for _, repo := range repos {
 		if account.ValidateName && !strings.Contains(repo.FullName, account.Name) {
-			if account.Type == "organization" {
+			if repo.Owner.Type == "organization" {
 				logr.Infof("[Git] Skipping repository %v because it doesn't contain the organization name %v", repo.FullName, account.Name)
-			} else if account.Type == "user" {
+			} else if repo.Owner.Type == "user" {
 				logr.Infof("[Git] Skipping repository %v because it doesn't contain the user name %v", repo.FullName, account.Name)
 			}
 			continue
