@@ -31,9 +31,6 @@ func AccessRepo(r *git.Repository, config *config.Config, account *config.Accoun
 	if config.ListReferences {
 		ListRefs(refList)
 	}
-	if config.LogCommits {
-		GetLog(r, refList)
-	}
 }
 
 func ListRefs(refList []*plumbing.Reference) {
@@ -66,28 +63,5 @@ func ListRefs(refList []*plumbing.Reference) {
 	for _, tag := range tagList {
 		tagName := tag[len(tagRefPrefix):]
 		logr.Infof("[Git] found tag: %s", tagName)
-	}
-}
-
-func GetLog(r *git.Repository, refList []*plumbing.Reference) {
-	branchRefPrefix := "refs/heads/"
-	for _, ref := range refList {
-		refName := ref.Name().String()
-		if !strings.HasPrefix(refName, branchRefPrefix) {
-			continue
-		}
-		branchName := refName[len(branchRefPrefix):]
-
-		commit, err := r.CommitObject(ref.Hash())
-		if err != nil {
-			logr.Errorf("[Git] failed getting the commit object: %v\n", err)
-			return
-		}
-		// log the branch name
-		logr.Infof("[Git] Get latest commit on %s branch", branchName)
-		// log the commit
-		logr.Infof("[Git] commit: %s", commit.Hash)
-		logr.Infof("[Git] author: %s", commit.Author)
-		logr.Infof("[Git] message: %s", commit.Message)
 	}
 }

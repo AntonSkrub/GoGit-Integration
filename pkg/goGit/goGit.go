@@ -16,7 +16,13 @@ import (
 )
 
 func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, account *config.Account) {
+	i := 0
 	for _, repo := range repos {
+		if i >= 5 {
+			logr.Infof("[Git] Stopping after 5 repositories ...")
+			break
+		}
+		i++
 		if account.ValidateName && !strings.Contains(repo.FullName, account.Name) {
 			if repo.Owner.Type == "organization" {
 				logr.Infof("[Git] Skipping repository %v because it doesn't contain the organization name %v", repo.FullName, account.Name)
@@ -63,7 +69,7 @@ func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, account
 			continue
 		}
 
-		if config.ListReferences || config.LogCommits {
+		if config.ListReferences {
 			AccessRepo(r, config, account)
 		}
 		logr.Infof("[Git] Finished updating the %v repository", repo.FullName)
@@ -94,7 +100,7 @@ func Clone(name string, config *config.Config, account *config.Account) {
 		return
 	}
 
-	if config.ListReferences || config.LogCommits {
+	if config.ListReferences {
 		AccessRepo(r, config, account)
 	}
 	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, path)

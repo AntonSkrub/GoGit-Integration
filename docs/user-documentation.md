@@ -107,10 +107,6 @@ For more information about the cron syntax, see [this page](https://pkg.go.dev/g
 
 Whether to list the references of the repositories.
 
-`LogCommits: bool`
-
-Whether to log the latest commits of the repositories.
-
 `LogLevel: int`
 
 The log level of the application. Can be either `0` (no logging), `1` (error logging), `2` (warning logging), `3` (info logging), `4` (debug logging) or `5` (trace logging).

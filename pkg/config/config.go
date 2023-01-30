@@ -18,7 +18,6 @@ type Config struct {
 	UpdateInterval string `yaml:"UpdateInterval"`
 
 	ListReferences bool `yaml:"ListReferences"`
-	LogCommits     bool `yaml:"LogCommits"`
 	LogLevel       int  `yaml:"LogLevel"`
 }
 
@@ -80,7 +79,6 @@ func createConfig() error {
 		UpdateInterval: "0 */12 * * * *",
 
 		ListReferences: true,
-		LogCommits:     false,
 		LogLevel:       6,
 	}
 
