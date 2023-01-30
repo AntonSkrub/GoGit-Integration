@@ -12,25 +12,21 @@ var instance *Config
 var configPath = "./config"
 
 type Config struct {
-	OrgaName     string `yaml:"OrgaName"`
-	OrgaToken    string `yaml:"OrgaToken"`
-	OrgaRepoType string `yaml:"OrgaRepoType"`
+	Accounts map[string]Account `yaml:"Accounts"`
 
-	CloneUserRepos bool            `yaml:"CloneUserRepos"`
-	Users          map[string]User `yaml:"Users"`
-
-	OutputPath 	   string `yaml:"OutputPath"`
+	OutputPath     string `yaml:"OutputPath"`
 	UpdateInterval string `yaml:"UpdateInterval"`
 
 	ListReferences bool `yaml:"ListReferences"`
-	LogCommits     bool `yaml:"LogCommits"`
 	LogLevel       int  `yaml:"LogLevel"`
 }
 
-type User struct {
-	Name        string `yaml:"Name"`
-	Token       string `yaml:"Token"`
-	Affiliation string `yaml:"Affiliation"`
+type Account struct {
+	Name         string `yaml:"Name"`
+	Token        string `yaml:"Token"`
+	Option       string `yaml:"Option"`
+	BackupRepos  bool   `yaml:"BackupRepos"`
+	ValidateName bool   `yaml:"ValidateName"` // Whether the User-/OrgaName has to be contained in the "full_name" of the repository
 }
 
 func GetConfig() *Config {
@@ -70,11 +66,19 @@ func initConfig() error {
 
 func createConfig() error {
 	config := &Config{
-		OrgaName:       "Default Orga",
-		OrgaToken:      "",
+		Accounts: map[string]Account{
+			"1st": {
+				Name:         "GitHub-Username",
+				Token:        "Github-Access-Token",
+				Option:       "all/owner,collaborator",
+				BackupRepos:  true,
+				ValidateName: false,
+			},
+		},
 		OutputPath:     "../Repo-Backups/",
+		UpdateInterval: "0 */12 * * * *",
+
 		ListReferences: true,
-		LogCommits:     false,
 		LogLevel:       6,
 	}
 

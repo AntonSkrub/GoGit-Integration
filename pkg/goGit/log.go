@@ -11,7 +11,7 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
-func AccessRepo(r *git.Repository, config *config.Config) {
+func AccessRepo(r *git.Repository, config *config.Config, account *config.Account) {
 	remote, err := r.Remote("origin")
 	if err != nil {
 		logr.Errorf("[GoGit] failed getting the remote: %v\n", err)
@@ -19,8 +19,8 @@ func AccessRepo(r *git.Repository, config *config.Config) {
 	}
 	refList, err := remote.List(&git.ListOptions{
 		Auth: &http.BasicAuth{
-			Username: config.OrgaName,
-			Password: config.OrgaToken,
+			Username: account.Name,
+			Password: account.Token,
 		},
 	})
 	if err != nil {
@@ -30,9 +30,6 @@ func AccessRepo(r *git.Repository, config *config.Config) {
 
 	if config.ListReferences {
 		ListRefs(refList)
-	}
-	if config.LogCommits {
-		GetLog(r, refList)
 	}
 }
 
@@ -66,28 +63,5 @@ func ListRefs(refList []*plumbing.Reference) {
 	for _, tag := range tagList {
 		tagName := tag[len(tagRefPrefix):]
 		logr.Infof("[Git] found tag: %s", tagName)
-	}
-}
-
-func GetLog(r *git.Repository, refList []*plumbing.Reference) {
-	branchRefPrefix := "refs/heads/"
-	for _, ref := range refList {
-		refName := ref.Name().String()
-		if !strings.HasPrefix(refName, branchRefPrefix) {
-			continue
-		}
-		branchName := refName[len(branchRefPrefix):]
-
-		commit, err := r.CommitObject(ref.Hash())
-		if err != nil {
-			logr.Errorf("[Git] failed getting the commit object: %v\n", err)
-			return
-		}
-		// log the branch name
-		logr.Infof("[Git] Get latest commit on %s branch", branchName)
-		// log the commit
-		logr.Infof("[Git] commit: %s", commit.Hash)
-		logr.Infof("[Git] author: %s", commit.Author)
-		logr.Infof("[Git] message: %s", commit.Message)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
 	"github.com/AntonSkrub/GoGit-Integration/pkg/gitapi"
@@ -14,13 +15,18 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
-func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, user *config.User) {
+func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, account *config.Account) {
 	for _, repo := range repos {
+		if account.ValidateName && !strings.Contains(repo.FullName, account.Name) {
+			logr.Infof("[Git] Skipping repository %v because it doesn't contain the account name %v", repo.FullName, account.Name)
+			continue
+		}
+
 		r, err := git.PlainOpen(filepath.Join(config.OutputPath, repo.FullName))
 		if err != nil {
 			if err == git.ErrRepositoryNotExists {
 				logr.Errorf("[Git] Couldn't find a local copy of Repository %v", repo.FullName)
-				Clone(repo.FullName, config, user)
+				Clone(repo.FullName, config, account)
 			} else {
 				logr.Errorf("[Git] failed opening the repository: %v\n", err)
 			}
@@ -34,7 +40,7 @@ func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, user *c
 		}
 
 		// Pull the latest changes from the origin and merge into the current branch
-		auth := buildAuth(config, user)
+		auth := buildAuth(account)
 
 		logr.Infof("[Git] Pulling the latest changes from the origin of %v", repo.FullName)
 		err = w.Pull(&git.PullOptions{
@@ -53,21 +59,21 @@ func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, user *c
 			continue
 		}
 
-		if config.ListReferences || config.LogCommits {
-			AccessRepo(r, config)
+		if config.ListReferences {
+			AccessRepo(r, config, account)
 		}
 		logr.Infof("[Git] Finished updating the %v repository", repo.FullName)
 	}
 }
 
-func Clone(name string, config *config.Config, user *config.User) {
+func Clone(name string, config *config.Config, account *config.Account) {
 	url, err := url.JoinPath("https://github.com", name+".git")
 	if err != nil {
 		logr.Errorf("[GoGit] failed creating the url: %v\n", err)
 		return
 	}
 
-	auth := buildAuth(config, user)
+	auth := buildAuth(account)
 	// Clone the repository to the given directory
 	path := filepath.Join(config.OutputPath, name)
 	logr.Infof("[GoGit] Cloning the %v repository to %v", url, path)
@@ -84,24 +90,16 @@ func Clone(name string, config *config.Config, user *config.User) {
 		return
 	}
 
-	if config.ListReferences || config.LogCommits {
-		AccessRepo(r, config)
+	if config.ListReferences {
+		AccessRepo(r, config, account)
 	}
 	logr.Infof("[GoGit] finished cloning the %v repository to %v", name, path)
 }
 
-func buildAuth(config *config.Config, user *config.User) *http.BasicAuth {
-	var auth *http.BasicAuth
-	auth = &http.BasicAuth{
-		Username: config.OrgaName,
-		Password: config.OrgaToken,
-	}
-
-	if user != nil {
-		auth = &http.BasicAuth{
-			Username: user.Name,
-			Password: user.Token,
-		}
+func buildAuth(account *config.Account) *http.BasicAuth {
+	auth := &http.BasicAuth{
+		Username: account.Name,
+		Password: account.Token,
 	}
 	return auth
 }

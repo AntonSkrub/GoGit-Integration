@@ -17,23 +17,20 @@ type Repository struct {
 	Name     string `json:"name"`
 	FullName string `json:"full_name"`
 	Private  bool   `json:"private"`
-	Owner    string `json:"owner.login"`
+	Owner    Owner  `json:"owner"`
 }
 
-func GetRepoList(config *config.Config, user *config.User) []Repository {
+type Owner struct {
+	Login string `json:"login"`
+	Type  string `json:"type"`
+}
+
+func GetRepoList(account *config.Account) []Repository {
 	token, reqUrl := "", ""
 	var err error
-	if user != nil {
-		reqUrl = buildURL("https://api.github.com/user/repos", "affiliation", user.Affiliation)
-		token = user.Token
-	} else {
-		baseUrl, err := url.JoinPath("https://api.github.com/orgs/", config.OrgaName, "repos")
-		if err != nil {
-			logr.Errorf("[API] failed creating the url: %v\n", err)
-		}
-		reqUrl = buildURL(baseUrl, "type", config.OrgaRepoType)
-		token = config.OrgaToken
-	}
+
+	reqUrl = buildURL("https://api.github.com/user/repos", "type", account.Option)
+	token = account.Token
 
 	req, err := http.NewRequest(http.MethodGet, reqUrl, nil)
 	if err != nil {
@@ -54,6 +51,10 @@ func GetRepoList(config *config.Config, user *config.User) []Repository {
 	if err != nil {
 		logr.Errorf("[API] failed reading the response body: %v\n", err)
 	}
+	if resp.StatusCode != http.StatusOK {
+		logr.Errorf("[API] Error %d: %s", resp.StatusCode, resp.Status)
+		return nil
+	}
 
 	// Unmarshal the json response to get the repository names
 	var repos []Repository
@@ -62,7 +63,6 @@ func GetRepoList(config *config.Config, user *config.User) []Repository {
 		logr.Errorf("[API] failed unmarshalling the json: %v\n", err)
 	}
 
-	logr.Printf("[API] Found %v Repositories!", len(repos))
 	return repos
 }
 

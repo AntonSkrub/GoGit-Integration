@@ -96,7 +96,7 @@ The `gitapi` package provides methods to get a list of the repository names to c
 
 ### gogit
 
-The `gogit` package provides methods to clone and update the local copies of the repositories. It also provides methods to get some more information about the repositories, base on the `ListReferences` and `LogCommits` config parameters.
+The `gogit` package provides methods to clone and update the local copies of the repositories. It also provides a method to get list the found tags and branches, based on the `ListReferences` config parameter.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |

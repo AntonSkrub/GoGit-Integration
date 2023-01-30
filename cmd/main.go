@@ -17,33 +17,44 @@ func main() {
 	config := config.GetConfig()
 	logr.SetLevel(logr.Level(config.LogLevel))
 
-	orgaRepoNames := gitapi.GetRepoList(config, nil)
-	logr.Info("[main] Found ", len(orgaRepoNames), " repositories in the organization")
-
-	gogit.UpdateLocalCopies(orgaRepoNames, config, nil)
-
-	// loop through the users in the config and log each users name to the console
-	if config.CloneUserRepos {
-		for _, user := range config.Users {
-			logr.Printf("[API] Found user: %v", user)
-			userRepoNames := gitapi.GetRepoList(config, &user)
-			logr.Info("[main] Found ", len(userRepoNames), " repositories on the user account of ", user.Name)
-			gogit.UpdateLocalCopies(userRepoNames, config, &user)
+	repoNames := []gitapi.Repository{}
+	for _, account := range config.Accounts {
+		if !account.BackupRepos {
+			logr.Infof("[main] Skipping account %v because it's not set to backup repositories", account.Name)
+			continue
 		}
+
+		logr.Printf("[API] Found account: %v", account)
+		repoNames = gitapi.GetRepoList(&account)
+		logr.Info("[main] Found ", len(repoNames), " repositories on the user account of ", account.Name)
+		gogit.UpdateLocalCopies(repoNames, config, &account)
 	}
 
-	UpdateInterval := cron.New()
-	UpdateInterval.AddFunc(config.UpdateInterval, func() {
-		gogit.UpdateLocalCopies(orgaRepoNames, config, nil)
+	BulkCron := cron.New()
+	BulkCron.AddFunc(config.UpdateInterval, func() {
+		for _, account := range config.Accounts {
+			if account.BackupRepos {
+				logr.Printf("[API] Found user: %v", account)
+				repoNames = gitapi.GetRepoList(&account)
+				logr.Info("[main] Found ", len(repoNames), " repositories on the account of ", account.Name)
+				gogit.UpdateLocalCopies(repoNames, config, &account)
+			} else {
+				logr.Infof("[main] Skipping account %v because it's not set to backup repositories", account.Name)
+				continue
+			}
+		}
 	})
-	go UpdateInterval.Start()
+	BulkCron.Start()
+
+	logr.Info("The initial run/backup cycle has completed")
+	logr.Info("The cron jobs have been setup to run in the background ...")
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 	<-sigChan
 	logr.Info("Received an interrupt signal, stopping the cron jobs ...")
 
-	UpdateInterval.Stop()
+	BulkCron.Stop()
 	logr.Info("Cron jobs stopped, exiting ...")
 	os.Exit(0)
 }

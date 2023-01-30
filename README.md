@@ -2,7 +2,7 @@
 
 [![Linters](https://github.com/AntonSkrub/GoGit-Integration/actions/workflows/linters.yml/badge.svg)](https://github.com/AntonSkrub/GoGit-Integration/actions/workflows/linters.yml)
 
-The GoGit-Integration is a small application which maintains local copies of an organizations, or users, GitHub repositories. The application keeps the local copies up to date with the remote repositories, based on a timed interval. Later the application should also offer a visual overview of the repositories and their status.
+The `GoGit-Integration` is a small application which maintains local copies of organizations and/or users, GitHub repositories. The application keeps the local copies up to date with the remote repositories, based on a timed interval. Later the application should also offer a visual overview of the repositories and their status.
 
 ## Development
 
@@ -23,7 +23,7 @@ https://avanis.de
 - The Software should be able to run on most hardware.
 - The Software should be executable as a background service.
 - The Software should be able to clone repositories from configured GitHub accounts.
-- The Software should be able to handle an organizations and multiple users.
+- The Software should be able to handle multiple organizations and users.
 - The Software should be able to handle multiple repositories.
 - The Software should keep the local copies up to date with the remote repositories.
 
