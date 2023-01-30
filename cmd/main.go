@@ -19,15 +19,15 @@ func main() {
 
 	repoNames := []gitapi.Repository{}
 	for _, account := range config.Accounts {
-		if account.BackupRepos {
-			logr.Printf("[API] Found account: %v", account)
-			repoNames = gitapi.GetRepoList(&account)
-			logr.Info("[main] Found ", len(repoNames), " repositories on the user account of ", account.Name)
-			gogit.UpdateLocalCopies(repoNames, config, &account)
-		} else {
+		if !account.BackupRepos {
 			logr.Infof("[main] Skipping account %v because it's not set to backup repositories", account.Name)
 			continue
 		}
+
+		logr.Printf("[API] Found account: %v", account)
+		repoNames = gitapi.GetRepoList(&account)
+		logr.Info("[main] Found ", len(repoNames), " repositories on the user account of ", account.Name)
+		gogit.UpdateLocalCopies(repoNames, config, &account)
 	}
 
 	BulkCron := cron.New()
