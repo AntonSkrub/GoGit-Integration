@@ -51,7 +51,7 @@ func GetRepoList(account *config.Account) []Repository {
 	if err != nil {
 		logr.Errorf("[API] failed reading the response body: %v\n", err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		logr.Errorf("[API] Error %d: %s", resp.StatusCode, resp.Status)
 		return nil
 	}

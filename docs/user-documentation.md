@@ -65,7 +65,7 @@ The access token of the organization
 
 `Option: string`
 
-Determines which repositories should be cloned. 
+Determines which repositories should be cloned.
 
 The following options are available, of which the first is the default option:
 - `all`: Clones all repositories of the organization.
@@ -82,7 +82,7 @@ If set to `true` the application clones the repositories of the organization to 
 
 `ValidateName: bool`
 
-Whether to validate the name of the organization. 
+Whether to validate the name of the organization.
 If set to `true` the application will check if the `full_name` of the repository contains the name of the organization and if not, the repository will not be cloned. Otherwise the application will clone all repositories found in the organization.
 
 `OutputPath: string`
