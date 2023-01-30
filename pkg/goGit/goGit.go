@@ -16,13 +16,7 @@ import (
 )
 
 func UpdateLocalCopies(repos []gitapi.Repository, config *config.Config, account *config.Account) {
-	i := 0
 	for _, repo := range repos {
-		if i >= 5 {
-			logr.Infof("[Git] Stopping after 5 repositories ...")
-			break
-		}
-		i++
 		if account.ValidateName && !strings.Contains(repo.FullName, account.Name) {
 			if repo.Owner.Type == "organization" {
 				logr.Infof("[Git] Skipping repository %v because it doesn't contain the organization name %v", repo.FullName, account.Name)
