@@ -8,7 +8,7 @@ import (
 	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
 	"github.com/AntonSkrub/GoGit-Integration/pkg/gitapi"
 	"github.com/AntonSkrub/GoGit-Integration/pkg/gogit"
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 	logr "github.com/sirupsen/logrus"
 )
 
@@ -36,7 +36,7 @@ func main() {
 			if account.BackupRepos {
 				logr.Printf("[API] Found user: %v", account)
 				repoNames = gitapi.GetRepoList(&account)
-				logr.Info("[main] Found ", len(repoNames), " repositories on the account account of ", account.Name)
+				logr.Info("[main] Found ", len(repoNames), " repositories on the account of ", account.Name)
 				gogit.UpdateLocalCopies(repoNames, config, &account)
 			} else {
 				logr.Infof("[main] Skipping account %v because it's not set to backup repositories", account.Name)
