@@ -6,6 +6,10 @@
   - [Table of Contents](#table-of-contents)
   - [1 License](#1-license)
   - [2 Installation](#2-installation)
+    - [2.1 System Requirements](#21-system-requirements)
+    - [2.2 Network Requirements](#22-network-requirements)
+    - [2.3 Prerequisites](#23-prerequisites)
+    - [2.3 Installation Process](#23-installation-process)
   - [3 Configuration](#3-configuration)
   - [4 Troubleshooting](#4-troubleshooting)
 
@@ -21,7 +25,12 @@ All right reserved.
 
 Since the GoGit-Integration is written in Go, the system requirements are fairly slim and it should be able to run on most systems.
 
-## 2.2 Prerequisites
+## 2.2 Network Requirements
+
+The following protocols are needed to run the application:
+`HTTP` -> To download the repositories from GitHub.
+
+## 2.3 Prerequisites
 
 Install [Go 1.19](https://golang.org/doc/install) or newer.
 ```text
@@ -30,60 +39,48 @@ https://go.dev/dl/go1.19.5.windows-amd64.msi
 
 ## 2.3 Installation Process
 
-## 2.3.1 Download the latest release
-
-Download the latest release from the [releases page](https://github.com/AntonSkrub/GoGit-Integration/releases).
-There are no releases yet tho.
-Extract the archive and run the executable file called `GoGitIntegration.exe`.
-
-### 2.3.2 Build from source
-
-When you have Go installed, download the repository and run the following command in the root directory of the project:
+You can either download the latest release from the [release page](https://github.com/AntonSkrub/GoGit-Integration/releases), or build the application from source.
+When you decide to download the latest release, you simply need to extract the files from the archive.
+If you want to build the application from the source, you need to download/clone the repository and run the following command in the root directory of the project:
 
 ```text
 go build -o GoGitIntegration.exe cmd/main.go
 ```
 
-This will create an executable file called `GoGitIntegration.exe` in the root directory of the project.
+In either case you will now have a file called `GoGitIntegration.exe`, place it in the desired location and run it. The initial execution will create a configuration file called `config.yml` in the same directory as the executable.
 
 ## 3 Configuration
 
 At first startup, the application will create a default configuration file called `config.yml` in the root directory of the project.
 The configuration file contains the following options:
 
-`Organizations: map[string]Account`
+`Accounts: map[string]Account`
 
-A map of organizations to clone the repositories from. It contains the following options:
+The `Accounts` configuration option is a map containing the names of and some additional information about the GitHub accounts to clone the repositories from.
+The map consists of the following options:
 
-`Name: string`
+- `Name: string`: The name of the GitHub account to clone the repositories from. Mainly used for identification purposes.  
+- `Token: string`: The access token of the GitHub account. This is needed to clone private repositories.  
+- `Option: string`: The options can be combined with a comma and determine which repositories should be cloned. The available options are:  
+  - `all`: Clones all repositories of the account. Default value.  
+  - `owner`: Clones only the repositories, of which the account is the owner.  
+  - `public`: Clones only the public repositories of the account.  
+  - `private`: Clones only the private repositories of the account.  
+  - `member`: Clones only the repositories, in which the account is a member.  
+- `BackupRepos: bool`: Whether to backup the repositories of the given account. If set to `true` the application clones the repositories of the account to the `OutputPath` directory. Otherwise the account and it's repositories will be skipped.  
+- `ValidateName: bool`: Whether the name of the account should be contained in the repositories `full_name` field. If set to `true` the application will only clone repositories, in which the `full_name` contains the name of the account. Otherwise the application will clone all repositories found in the account.  
 
-The name of the organization to clone the repositories from.
+Example configuration, with default values:
 
-`Token: string`
-
-The access token of the organization
-
-`Option: string`
-
-Determines which repositories should be cloned.
-
-The following options are available, of which the first is the default option:
-- `all`: Clones all repositories of the organization.
-- `public`: Clones all public repositories of the organization.
-- `private`: Clones all private repositories of the organization.
-- `forks`: Clones all forked repositories of the organization.
-- `sources`: Clones all source repositories of the organization.
-- `member`: Clones all repositories of the organization, in which the user is a member.
-
-`BackupRepos: bool`
-
-Whether to backup the repositories of the given organization.
-If set to `true` the application clones the repositories of the organization to the `OutputPath` directory. Otherwise the organization and it's repositories will be skipped.
-
-`ValidateName: bool`
-
-Whether to validate the name of the organization.
-If set to `true` the application will check if the `full_name` of the repository contains the name of the organization and if not, the repository will not be cloned. Otherwise the application will clone all repositories found in the organization.
+```yaml
+Accounts:
+  1st:
+    Name: "GitHub-Username"
+    Token: "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"
+    Option: "all"
+    BackupRepos: true
+    ValidateName: false
+```
 
 `OutputPath: string`
 
@@ -109,7 +106,17 @@ Whether to list the references of the repositories.
 
 `LogLevel: int`
 
-The log level of the application. Can be either `0` (no logging), `1` (error logging), `2` (warning logging), `3` (info logging), `4` (debug logging) or `5` (trace logging).
+The "loglevel" configuration option, sets the level of detail for the information that is output during runtime of the application.
+
+The available log levels are:
+- **0** >> Panic
+- **1** >> Fatal
+- **2** >> Error
+- **3** >> Warn
+- **4** >> Info
+- **5** >> Debug
+- **6** >> Trace
+> The default is "Info"
 
 ## 4 Troubleshooting
 
