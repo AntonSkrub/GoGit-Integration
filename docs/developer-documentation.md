@@ -24,7 +24,7 @@ https://avanis.de
 ```
 ## 2 Development environment
 
-The software was developed under Windows using Visual Studio Code.
+The software was developed under Windows using Visual Studio Code to run on any machine.
 The project is purely written in Go in the version 1.19.5.
 
 ## 3 Dependencies
@@ -70,7 +70,7 @@ There is no versioning yet.
 
 ### main
 
-The `main` package is the starting point of the application. It contains the main function and the application logic. It's responsible for starting other software modules and handling the application lifecycle.
+The `main` package is the starting point of the application. It contains the main function and some additional application logic. It's responsible for starting other software modules and handling the applications lifecycle.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
@@ -78,21 +78,151 @@ The `main` package is the starting point of the application. It contains the mai
 | gitapi | Used to get a list of repository names to clone |
 | gogit  | Used to created and update the local copies of the repositories |
 
+#### **main()** function
+
+First the function declares some flags, which can be passed to the program in the command-line. If one of these flags is detected, the application will perform certain actions, such as outputting a help text and exit afterwards. Otherwise the application will continue with the default behavior.
+It loads the configuration file and initializes the logger. After that the names of the repositories to clone are requested from the GitHub API and will attempt to clone or update the local copies of the repositories. After the initial run, the application starts a cron-job to keep the local copies up to date with the remote repositories.
+
+*Input values:*
+
+The `main()` function does not accept any input values.
+
+*Return values:*
+
+The `main()` function does not return any values.
+
+*Error handling:*
+
+The `main()` function does not handle any errors.
+
+---
+#### **printHelp()** function
+
+The `printHelp()` function is executed when the "-help" flag is passed in the CLI on startup. It print some basic information about the program, lists other usable starting flags and then lead to the immediate end of the program.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+
+There are no return values in this function
+
+*Error handling:*
+
+The function is expected to never cause an error.
+
+---
+#### **printConfigExplanation()** function
+
+The `printConfigExplanation()` function is executed when the "-confighelp" flag is passed in the CLI on startup. It displays the list of cluster configuration parameters with a short description to each one and then leads to the immediate end of the program
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+
+There are no return values in this function
+
+*Error handling:*
+
+The function is expected to never cause an error.
+
+---
+---
 ### config
 
-The `config` package defines the configuration structure and provides methods to initialize, load and handle the configuration
+The `config` package defines the configuration structure and provides methods to initialize, load and handle the configuration.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
 | - | - |
 
+#### **GetConfig()** function
+
+This function returns the current configuration. If no configuration is detected at the specified location, by the `initConfig()` function, a new one will be created through the `createConfig()` function.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| instance | *Config | The current configuration, provides GitHub account names and access-tokens for example |
+
+*Error handling:*
+
+When no configuration is found, the `initConfig()` function will be called to create a new one. If this fails, the application will exit with an error.
+
+---
+#### **initConfig()** function
+
+This function tries to load the configuration file from the specified location. If no configuration is found, a new one will be created with default values by the `createConfig()` function.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| error | error | Used to stores and return occurring errors |
+
+*Error handling:*
+
+Should an error occur while reading or creating the configuration file, the error will be passed to the caller-function and the application will exit with an error.
+
+---
+#### **createConfig()** function
+
+This function creates a new configuration file with default values. It will be called when no configuration file is found at the specified location.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| error | error | Used to stores and return occurring errors |
+
+*Error handling:*
+
+When an error occurs while creating the configuration file, the error will be passed to the caller-function and the application will exit with an error.
+
+---
+---
 ### gitapi
 
-The `gitapi` package provides methods to get a list of the repository names to clone.
+The `gitapi` package provides methods to get a list of the repository names from the GitHub API.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
 | config | Provides config-values like organization-names and usernames |
+
+#### **GetRepoList()** function
+
+The `GetRepoList()` function requests a/the list of repositories from the GitHub API. It will return a list of all repositories, accessible by the provided access-token, for each of the configured GitHub accounts.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| account | *config.Account | The GitHub Account to request repositories from |
+
+*Return values:*
+
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| repos | []Repositories | A list of repositories |
+
+*Error handling:*
+
+-
+
+
 
 ### gogit
 
