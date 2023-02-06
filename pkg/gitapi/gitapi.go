@@ -29,7 +29,7 @@ func GetRepoList(account *config.Account) []Repository {
 	token, reqUrl := "", ""
 	var err error
 
-	reqUrl = buildURL("https://api.github.com/user/repos", "type", account.Option)
+	reqUrl = buildURL(account.Option)
 	token = account.Token
 
 	req, err := http.NewRequest(http.MethodGet, reqUrl, nil)
@@ -66,13 +66,13 @@ func GetRepoList(account *config.Account) []Repository {
 	return repos
 }
 
-func buildURL(baseURL string, paramType string, param string) string {
-	url, err := url.Parse(baseURL)
+func buildURL(paramValue string) string {
+	url, err := url.Parse("https://api.github.com/user/repos")
 	if err != nil {
 		logr.Errorf("[API] failed creating the url: %v\n", err)
 	}
 	q := url.Query()
-	q.Add(paramType, param)
+	q.Add("type", paramValue)
 	url.RawQuery = q.Encode()
 	urlString := url.String()
 	return urlString

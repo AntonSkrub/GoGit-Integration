@@ -220,15 +220,115 @@ The `GetRepoList()` function requests a/the list of repositories from the GitHub
 
 *Error handling:*
 
--
+Errors that occur in this function will be directly printed to the console and the application will continue with the next account.
 
+---
 
+#### **buildURL()** function
+
+The `buildURL()` function builds the URL to request the list of repositories from the GitHub API. It will return the URL as a string to it's caller function.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| paramValue | string | The value of the "type" parameter to add to the request URL |
+
+*Return values:*
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| urlString | string | The URL to request the list of repositories from the GitHub API |
+
+*Error handling:*
+
+Should an error occur while building the URL, it will be directly printed to the console and the application will continue with the next account.
+---
+---
 
 ### gogit
 
-The `gogit` package provides methods to clone and update the local copies of the repositories. It also provides a method to get list the found tags and branches, based on the `ListReferences` config parameter.
+The `gogit` package provides methods to clone and update the local copies of the repositories. It also provides a method to list tags and branches of a repository.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
 | config | Provides config-values like the local `OutPutPath` for the repositories |
 | gitapi | Provides the `gitapi.Repository` struct used to extract repository information like the `full_name` and `owner` |
+
+#### **UpdateLocalCopies()** function
+
+The `UpdateLocalCopies()` function will, for each repository, try to open a folder named after the repositories `full_name` in the `OutputPath` folder. If the folder does not exist, it will be created and the `Clone()` function will be called to create a local copy in the just created folder. If the folder already exists, the local copy will be updated by pulling the latest changes from the remote repository.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| repos | []gitapi.Repository | A list of repositories |
+| config | *config.Config | The current configuration |
+| account | *config.Account | The GitHub Account to clone/update repositories from |
+
+*Return values:*
+
+This function does not have any return values.
+
+*Error handling:*
+
+Errors that occur in this function will be directly printed to the console and the application will continue with the next repository of the given account.
+
+---
+
+#### **Clone()** function
+
+Should a repository not be found in the local `OutputPath` folder, the `Clone()` function will be called to create a local copy of the repository. It will clone the repository into a folder named after the repositories `full_name` in the `OutputPath` folder.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| name | string | The name of the repository to clone |
+| config | *config.Config | The current configuration |
+| account | *config.Account | The GitHub Account to clone repositories from |
+
+*Return values:*
+
+This function does not have any return values.
+
+*Error handling:*
+
+Errors that occur in this function will be directly printed to the console and the application will continue with the next repository of the given account.
+
+---
+
+#### **AccessRepo()** function
+
+The `AccessRepo()` function requests a list of references (tags and branches) from GitHub, the returned list will be passed to the `ListRefs()` function, which print the list to the console.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| r | *gitapi.Repository | The repository to request references from |
+| config | *config.Config | The current configuration |
+| account | *config.Account | The GitHub Account the repository belongs to |
+
+*Return values:*
+
+There are no return values for this function.
+
+*Error handling:*
+
+Error will directly be printed to the console and the application will continue without listing the references of the repository.
+
+---
+
+#### **ListRefs()** function
+
+The `ListRefs()` function first groups the references by their `ref_type` (tag or branch) and then prints the ordered list to the console.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| refs | []*plumbing.Reference | The list of references found on the repository |
+
+*Return values:*
+
+There are no return values for this function.
+
+*Error handling:*
+
+This function is expected to not cause any errors.
