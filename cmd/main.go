@@ -17,8 +17,9 @@ import (
 const version = "1.0.0"
 
 func main() {
-	showHelp := flag.Bool("help", false, "Show general information about the flipbook.")
+	showHelp := flag.Bool("help", false, "Show general information about the GoGit-Integration.")
 	showConfigHelp := flag.Bool("confighelp", false, "Displays all configuration options.")
+	setConfigPath := flag.String("config", "./config", "Sets the path to the configuration file.")
 	flag.Parse()
 
 	if *showHelp {
@@ -27,6 +28,10 @@ func main() {
 	if *showConfigHelp {
 		printConfigExplanation()
 	}
+	if *setConfigPath != "" {
+		config.SetConfigPath(*setConfigPath)
+	}
+
 	if *showHelp || *showConfigHelp {
 		return
 	}
@@ -88,7 +93,7 @@ func main() {
 func printHelp() {
 	fmt.Println("=====================================")
 	fmt.Printf("GoGit-Integration %v - developed by Anton Paul\n", version)
-	fmt.Println("Golang based tool for backing up repositories from different GitHub users or organizations")
+	fmt.Println("Golang based tool for backing up repositories a or multiple GitHub accounts.")
 	fmt.Println("=====================================")
 	fmt.Printf("Allowed starting flags:\n\n")
 	fmt.Printf("-confighelp - Displays all configuration options.\n")

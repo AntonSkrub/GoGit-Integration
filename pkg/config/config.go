@@ -103,3 +103,7 @@ func createConfig() error {
 	os.Exit(0)
 	return nil
 }
+
+func SetConfigPath(path string) {
+	configPath = path
+}
