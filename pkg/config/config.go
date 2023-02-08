@@ -70,7 +70,7 @@ func createConfig() error {
 			"1st": {
 				Name:         "GitHub-Username",
 				Token:        "Github-Access-Token",
-				Option:       "all/owner,collaborator",
+				Option:       "all",
 				BackupRepos:  true,
 				ValidateName: false,
 			},

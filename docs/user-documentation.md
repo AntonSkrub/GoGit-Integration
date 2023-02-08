@@ -11,6 +11,8 @@
     - [2.3 Prerequisites](#23-prerequisites)
     - [2.3 Installation Process](#23-installation-process)
   - [3 Configuration](#3-configuration)
+    - [3.1 Accounts](#31-accounts)
+    - [3.2 Remaining Options](#32-remaining-options)
   - [4 Troubleshooting](#4-troubleshooting)
 
 ## 1 License
@@ -54,6 +56,7 @@ In either case you will now have a file called `GoGitIntegration.exe`, place it 
 At first startup, the application will create a default configuration file called `config.yml` in the root directory of the project.
 The configuration file contains the following options:
 
+### 3.1 Accounts
 `Accounts: map[string]Account`
 
 The `Accounts` configuration option is a map containing the names of and some additional information about the GitHub accounts to clone the repositories from.
@@ -81,7 +84,7 @@ Accounts:
     BackupRepos: true
     ValidateName: false
 ```
-
+### 3.2 Remaining Options 
 `OutputPath: string`
 
 The path to the directory where the repositories should be cloned to.

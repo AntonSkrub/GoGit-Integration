@@ -106,6 +106,7 @@ func printConfigExplanation() {
 	fmt.Printf("Accounts: A list of all accounts to backup repositories from. \n")
 	fmt.Printf("  Name: The name of the account. \n")
 	fmt.Printf("  Token: The token of the account. \n")
+	fmt.Printf("  Option: Added to the requested URL as a parameter. Defines which type of repositories to clone/update. \n\t  Possible values are: all, owner, public, private, member. \n")
 	fmt.Printf("  BackupRepos: A boolean value indicating whether the repositories of this account should be backed up. \n")
 	fmt.Printf("  ValidateName: A boolean value indicating whether the repositories `full_name` has to contain the `Account.Name`. \n")
 	fmt.Printf("OutputPath: The path where the repositories should be stored. \n")
