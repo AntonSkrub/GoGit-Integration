@@ -79,12 +79,12 @@ Example configuration, with default values:
 Accounts:
   1st:
     Name: "GitHub-Username"
-    Token: "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"
+    Token: "<GitHub-Access-Token>"
     Option: "all"
     BackupRepos: true
     ValidateName: false
 ```
-### 3.2 Remaining Options 
+### 3.2 Remaining Options
 `OutputPath: string`
 
 The path to the directory where the repositories should be cloned to.

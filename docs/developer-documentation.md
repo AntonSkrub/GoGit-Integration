@@ -81,7 +81,7 @@ The `main` package is the starting point of the application. It contains the mai
 #### ***main()*** function
 
 First the function declares some flags, which can be passed to the program in the command-line. If one of these flags is detected, the application will perform certain actions, such as outputting a help text and exit afterwards. Otherwise the application will continue with the default behavior.
-It loads the configuration file and initializes the logger. After that the application requests the list of repositories from the GitHub API and attempts to create or update the local copies of the repositories. When the initial run is finished, the application starts a cron-job to keep the local copies up to date with the remote repositories. 
+It loads the configuration file and initializes the logger. After that the application requests the list of repositories from the GitHub API and attempts to create or update the local copies of the repositories. When the initial run is finished, the application starts a cron-job to keep the local copies up to date with the remote repositories.
 
 *Input values:*
 
@@ -250,7 +250,8 @@ The `gogit` package provides methods to clone/create a and update the local copi
 
 #### ***UpdateLocalCopies()*** function
 
-The `UpdateLocalCopies()` function will, for each repository, try to open a folder named after the repositories `full_name` in the `OutputPath` folder. If the folder does not exist, it will be created and the `Clone()` function will be called to create a local copy in the just created folder. If the folder already exists, the local copy will be updated by pulling the latest changes from the remote repository.
+The `UpdateLocalCopies()` function will, for each repository, try to open a folder named after the repositories `full_name` in the `OutputPath` folder. If the folder does not exist, it will be created and the `Clone()` function will be called to create a local copy in the just created folder.  
+If the folder already exists, the local copy will be updated by pulling the latest changes from the remote repository.
 
 *Input values:*
 | Input variable | Type | Usage |
