@@ -24,7 +24,7 @@ https://avanis.de
 ```
 ## 2 Development environment
 
-The software was developed under Windows using Visual Studio Code.
+The software was developed under Windows using Visual Studio Code to run on any machine.
 The project is purely written in Go in the version 1.19.5.
 
 ## 3 Dependencies
@@ -70,7 +70,7 @@ There is no versioning yet.
 
 ### main
 
-The `main` package is the starting point of the application. It contains the main function and the application logic. It's responsible for starting other software modules and handling the application lifecycle.
+The `main` package is the starting point of the application. It contains the main function and some additional application logic. It's responsible for starting other software modules and handling the applications lifecycle.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
@@ -78,27 +78,249 @@ The `main` package is the starting point of the application. It contains the mai
 | gitapi | Used to get a list of repository names to clone |
 | gogit  | Used to created and update the local copies of the repositories |
 
+#### ***main()*** function
+
+First the function declares some flags, which can be passed to the program in the command-line. If one of these flags is detected, the application will perform certain actions, such as outputting a help text and exit afterwards. Otherwise the application will continue with the default behavior.
+It loads the configuration file and initializes the logger. After that the application requests the list of repositories from the GitHub API and attempts to create or update the local copies of the repositories. When the initial run is finished, the application starts a cron-job to keep the local copies up to date with the remote repositories.
+
+*Input values:*
+
+The `main()` function does not accept any input values.
+
+*Return values:*
+
+The `main()` function does not return any values.
+
+*Error handling:*
+
+The `main()` function does not handle any errors.
+
+#### ***printHelp()*** function
+
+The `printHelp()` function is executed when the "-help" flag is passed in the CLI on startup. It print some basic information about the program, lists other usable flags and then lead to the immediate end of the program.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+
+There are no return values in this function
+
+*Error handling:*
+
+The function is expected to never cause an error.
+
+
+#### ***printConfigExplanation()*** function
+
+The `printConfigExplanation()` function is executed when the "-confighelp" flag is passed in the CLI on startup. It displays the list of configuration options and a short description to each one. This function also leads to the immediate end of the program.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+
+There are no return values in this function
+
+*Error handling:*
+
+The function is expected to never cause an error.
+
+---
+
 ### config
 
-The `config` package defines the configuration structure and provides methods to initialize, load and handle the configuration
+The `config` package defines the configuration structure and provides methods to initialize, load and handle the configuration.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
 | - | - |
 
+#### ***GetConfig()*** function
+
+This function returns the current configuration. If no configuration is detected at the specified location, by the `initConfig()` function, a new one, with default values, will be created by the `createConfig()` function.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| instance | *Config | The current configuration, provides GitHub account names and access-tokens for example |
+
+*Error handling:*
+
+When no configuration is found, the `initConfig()` function will be called to create a new one. If this fails, the application will exit with an error.
+
+#### ***initConfig()*** function
+
+This function tries to load the configuration file from the specified location. If no configuration is found, a new one will be created with default values by the `createConfig()` function.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| error | error | Used to stores and return occurring errors |
+
+*Error handling:*
+
+Should an error occur while reading or creating the configuration file, the error will be passed to the caller-function and the application will exit with an error.
+
+#### ***createConfig()*** function
+
+This function creates a new configuration file with default values. It will be called when no configuration file is found at the specified location.
+
+*Input values:*
+
+There are no input parameters for this function.
+
+*Return values:*
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| error | error | Used to stores and return occurring errors |
+
+*Error handling:*
+
+When an error occurs while creating the configuration file, the error will be passed to the caller-function and the application will exit with an error.
+
+---
+
 ### gitapi
 
-The `gitapi` package provides methods to get a list of the repository names to clone.
+The `gitapi` package provides methods to get a list of accessible repository names from the GitHub API.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
 | config | Provides config-values like organization-names and usernames |
 
+#### ***GetRepoList()*** function
+
+The `GetRepoList()` function requests the list of repositories from the GitHub API. It will return a list of all repositories, accessible by the provided access-token, for each GitHub account in the configuration.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| account | *config.Account | The GitHub Account to request repositories from |
+
+*Return values:*
+
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| repos | []Repositories | A list of the `gitapi.Repository` struct, used to store certain information about them |
+
+*Error handling:*
+
+Errors that occur in this function will be directly printed to the console and the application will continue with the next account.
+
+#### ***buildURL()*** function
+
+The `buildURL()` function builds the URL to request the list of repositories from the GitHub API. It will return the URL as a string to it's caller function.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| paramValue | string | The value of the "type" parameter to add to the request URL |
+
+*Return values:*
+| Return value | Type | Usage |
+| -------------- | ---- | ----- |
+| urlString | string | The URL to request the list of repositories from the GitHub API |
+
+*Error handling:*
+
+Should an error occur while building the URL, it will be directly printed to the console and the application will continue with the next account.
+
+---
+
 ### gogit
 
-The `gogit` package provides methods to clone and update the local copies of the repositories. It also provides a method to get list the found tags and branches, based on the `ListReferences` config parameter.
+The `gogit` package provides methods to clone/create a and update the local copies of the repositories. It also provides a method to list tags and branches of a repository.
 
 | Package dependencies | Description |
 | -------------------- | ----------- |
 | config | Provides config-values like the local `OutPutPath` for the repositories |
-| gitapi | Provides the `gitapi.Repository` struct used to extract repository information like the `full_name` and `owner` |
+| gitapi | Provides the `Repository` struct used to extract repository information like the `full_name` and `owner` |
+
+#### ***UpdateLocalCopies()*** function
+
+The `UpdateLocalCopies()` function will, for each repository, try to open a folder named after the repositories `full_name` in the `OutputPath` folder. If the folder does not exist, it will be created and the `Clone()` function will be called to create a local copy in the just created folder.  
+If the folder already exists, the local copy will be updated by pulling the latest changes from the remote repository.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| repos | []gitapi.Repository | A list of repositories |
+| config | *config.Config | The current configuration |
+| account | *config.Account | The GitHub Account to clone/update repositories from |
+
+*Return values:*
+
+This function does not have any return values.
+
+*Error handling:*
+
+Errors that occur in this function will be directly printed to the console and the application will continue with the next repository of the given account.
+
+
+#### ***Clone()*** function
+
+Should a repository not be found in the local `OutputPath` folder, the `Clone()` function will be called to create a local copy of the repository. It will clone the repository into a folder named after the repositories `full_name` in the `OutputPath` folder.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| name | string | The name of the repository to clone |
+| config | *config.Config | The current configuration |
+| account | *config.Account | The GitHub Account to clone repositories from |
+
+*Return values:*
+
+This function does not have any return values.
+
+*Error handling:*
+
+Errors that occur in this function will be directly printed to the console and the application will continue with the next repository of the given account.
+
+#### ***AccessRepo()*** function
+
+The `AccessRepo()` function requests a list of references (tags and branches) from GitHub, the returned list will be passed to the `ListRefs()` function, which print the list to the console.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| r | *gitapi.Repository | The repository to request references from |
+| config | *config.Config | The current configuration |
+| account | *config.Account | The GitHub Account the repository belongs to |
+
+*Return values:*
+
+There are no return values for this function.
+
+*Error handling:*
+
+Error will directly be printed to the console and the application will continue without listing the references of the repository.
+
+
+#### ***ListRefs()*** function
+
+The `ListRefs()` function first groups the references by their `ref_type` (tag or branch) and then prints the ordered list to the console.
+
+*Input values:*
+| Input variable | Type | Usage |
+| -------------- | ---- | ----- |
+| refs | []*plumbing.Reference | The list of references found on the repository |
+
+*Return values:*
+
+There are no return values for this function.
+
+*Error handling:*
+
+This function is expected to not cause any errors.

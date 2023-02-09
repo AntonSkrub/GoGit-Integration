@@ -70,7 +70,7 @@ func createConfig() error {
 			"1st": {
 				Name:         "GitHub-Username",
 				Token:        "Github-Access-Token",
-				Option:       "all/owner,collaborator",
+				Option:       "all",
 				BackupRepos:  true,
 				ValidateName: false,
 			},
@@ -102,4 +102,8 @@ func createConfig() error {
 	logr.Info("[config] created default configuration, exiting...")
 	os.Exit(0)
 	return nil
+}
+
+func SetConfigPath(path string) {
+	configPath = path
 }

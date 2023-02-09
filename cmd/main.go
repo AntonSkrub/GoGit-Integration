@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,7 +14,28 @@ import (
 	logr "github.com/sirupsen/logrus"
 )
 
+const version = "1.0.0"
+
 func main() {
+	showHelp := flag.Bool("help", false, "Show general information about the GoGit-Integration.")
+	showConfigHelp := flag.Bool("confighelp", false, "Displays all configuration options.")
+	setConfigPath := flag.String("config", "./config", "Sets the path to the configuration file.")
+	flag.Parse()
+
+	if *showHelp {
+		printHelp()
+	}
+	if *showConfigHelp {
+		printConfigExplanation()
+	}
+	if *setConfigPath != "" {
+		config.SetConfigPath(*setConfigPath)
+	}
+
+	if *showHelp || *showConfigHelp {
+		return
+	}
+
 	logr.Infoln("Grabbing configuration...")
 	config := config.GetConfig()
 	logr.SetLevel(logr.Level(config.LogLevel))
@@ -26,6 +49,10 @@ func main() {
 
 		logr.Printf("[API] Found account: %v", account)
 		repoNames = gitapi.GetRepoList(&account)
+		if len(repoNames) == 0 {
+			logr.Infof("[main] No repositories found on the account of %v", account.Name)
+			continue
+		}
 		logr.Info("[main] Found ", len(repoNames), " repositories on the user account of ", account.Name)
 		gogit.UpdateLocalCopies(repoNames, config, &account)
 	}
@@ -36,6 +63,10 @@ func main() {
 			if account.BackupRepos {
 				logr.Printf("[API] Found user: %v", account)
 				repoNames = gitapi.GetRepoList(&account)
+				if len(repoNames) == 0 {
+					logr.Infof("[main] No repositories found on the account of %v", account.Name)
+					continue
+				}
 				logr.Info("[main] Found ", len(repoNames), " repositories on the account of ", account.Name)
 				gogit.UpdateLocalCopies(repoNames, config, &account)
 			} else {
@@ -57,4 +88,29 @@ func main() {
 	BulkCron.Stop()
 	logr.Info("Cron jobs stopped, exiting ...")
 	os.Exit(0)
+}
+
+func printHelp() {
+	fmt.Println("=====================================")
+	fmt.Printf("GoGit-Integration %v - developed by Anton Paul\n", version)
+	fmt.Println("Golang based tool for backing up repositories a or multiple GitHub accounts.")
+	fmt.Println("=====================================")
+	fmt.Printf("Allowed starting flags:\n\n")
+	fmt.Printf("-confighelp - Displays all configuration options.\n")
+}
+
+func printConfigExplanation() {
+	fmt.Println("=====================================")
+	fmt.Println("The configuration file must be named config.yml and placed in a config directory where the executable file is located.")
+	fmt.Printf("The following parameters must be configured in a config file: \n \n")
+	fmt.Printf("Accounts: A list of all accounts to backup repositories from. \n")
+	fmt.Printf("  Name: The name of the account. \n")
+	fmt.Printf("  Token: The token of the account. \n")
+	fmt.Printf("  Option: Added to the requested URL as a parameter. Defines which type of repositories to clone/update. \n\t  Possible values are: all, owner, public, private, member. \n")
+	fmt.Printf("  BackupRepos: A boolean value indicating whether the repositories of this account should be backed up. \n")
+	fmt.Printf("  ValidateName: A boolean value indicating whether the repositories `full_name` has to contain the `Account.Name`. \n")
+	fmt.Printf("OutputPath: The path where the repositories should be stored. \n")
+	fmt.Printf("UpdateInterval: The interval in which the repositories should be updated. Set in the so called cron syntax \n")
+	fmt.Printf("LogLevel: An integrer representing the desired loglevel. \n")
+	fmt.Println("=====================================")
 }
