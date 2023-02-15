@@ -1,9 +1,8 @@
 package gogit
 
 import (
+	"GoGit-Integration/pkg/config"
 	"strings"
-
-	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
