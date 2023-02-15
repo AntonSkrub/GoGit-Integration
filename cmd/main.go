@@ -1,9 +1,6 @@
 package main
 
 import (
-	"GoGit-Integration/pkg/config"
-	"GoGit-Integration/pkg/gitapi"
-	"GoGit-Integration/pkg/gogit"
 	"flag"
 	"fmt"
 	"gogit-integration/pkg/config"
