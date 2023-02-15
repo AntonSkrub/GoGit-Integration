@@ -1,4 +1,4 @@
-module GoGit-Integration
+module gogit-integration
 
 go 1.19
 

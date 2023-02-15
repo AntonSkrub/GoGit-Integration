@@ -3,6 +3,7 @@ package gitapi
 import (
 	"GoGit-Integration/pkg/config"
 	"encoding/json"
+	"gogit-integration/pkg/config"
 	"io/ioutil"
 	"net/http"
 	"net/url"

@@ -1,7 +1,7 @@
 package gogit
 
 import (
-	"GoGit-Integration/pkg/config"
+	"gogit-integration/pkg/config"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
