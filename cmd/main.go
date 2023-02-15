@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"gogit-integration/pkg/config"
+	"gogit-integration/pkg/git"
 	"gogit-integration/pkg/gitapi"
-	"gogit-integration/pkg/gogit"
 	"os"
 	"os/signal"
 	"syscall"
@@ -54,7 +54,7 @@ func main() {
 			continue
 		}
 		logr.Info("[main] Found ", len(repoNames), " repositories on the user account of ", account.Name)
-		gogit.UpdateLocalCopies(repoNames, config, &account)
+		git.UpdateLocalCopies(repoNames, config, &account)
 	}
 
 	BulkCron := cron.New()
@@ -68,7 +68,7 @@ func main() {
 					continue
 				}
 				logr.Info("[main] Found ", len(repoNames), " repositories on the account of ", account.Name)
-				gogit.UpdateLocalCopies(repoNames, config, &account)
+				git.UpdateLocalCopies(repoNames, config, &account)
 			} else {
 				logr.Infof("[main] Skipping account %v because it's not set to backup repositories", account.Name)
 				continue
