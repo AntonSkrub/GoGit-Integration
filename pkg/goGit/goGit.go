@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
-	"github.com/AntonSkrub/GoGit-Integration/pkg/gitapi"
+	"GoGit-Integration/pkg/config"
+	"GoGit-Integration/pkg/gitapi"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"

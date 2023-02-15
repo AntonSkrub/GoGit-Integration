@@ -1,13 +1,12 @@
 package gitapi
 
 import (
+	"GoGit-Integration/pkg/config"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
 
 	logr "github.com/sirupsen/logrus"
 )

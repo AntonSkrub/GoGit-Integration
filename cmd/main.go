@@ -1,15 +1,15 @@
 package main
 
 import (
+	"GoGit-Integration/pkg/config"
+	"GoGit-Integration/pkg/gitapi"
+	"GoGit-Integration/pkg/gogit"
 	"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/AntonSkrub/GoGit-Integration/pkg/config"
-	"github.com/AntonSkrub/GoGit-Integration/pkg/gitapi"
-	"github.com/AntonSkrub/GoGit-Integration/pkg/gogit"
 	"github.com/robfig/cron/v3"
 	logr "github.com/sirupsen/logrus"
 )
