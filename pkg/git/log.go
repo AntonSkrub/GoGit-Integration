@@ -1,4 +1,4 @@
-package gogit
+package git
 
 import (
 	"gogit-integration/pkg/config"
