@@ -6,20 +6,27 @@ import (
 	"gogit-integration/pkg/config"
 	"gogit-integration/pkg/git"
 	"gogit-integration/pkg/gitapi"
+	"io"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/robfig/cron/v3"
 	logr "github.com/sirupsen/logrus"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 const version = "1.0.0"
+
+const logname = "github-backup.log"
+const logFilePath = "./logs/"
 
 func main() {
 	showHelp := flag.Bool("help", false, "Show general information about the GoGit-Integration.")
 	showConfigHelp := flag.Bool("confighelp", false, "Displays all configuration options.")
 	setConfigPath := flag.String("config", "./config", "Sets the path to the configuration file.")
+	debugMode := flag.Bool("debug", false, "Enables the debug loglevel for this lifecycle.")
 	flag.Parse()
 
 	if *showHelp {
@@ -38,22 +45,40 @@ func main() {
 
 	logr.Infoln("Grabbing configuration...")
 	config := config.GetConfig()
+	if *debugMode {
+		config.LogLevel = uint32(logr.DebugLevel)
+	}
+
+	// set a lumberjack configuration
+	logr.Debugln("Configuring lumberjack logger ...")
+	logPath := filepath.Join(logFilePath, logname)
+	logger := &lumberjack.Logger{
+		Filename:   logPath,
+		MaxSize:    1, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28, //days
+		Compress:   false,
+	}
+
+	mw := io.MultiWriter(logger, os.Stdout)
 	logr.SetLevel(logr.Level(config.LogLevel))
+	logr.SetOutput(mw)
+	logr.Debugln("The application is running in debug mode")
 
 	repoNames := []gitapi.Repository{}
 	for _, account := range config.Accounts {
 		if !account.BackupRepos {
-			logr.Infof("[main] Skipping account %v because it's not set to backup repositories", account.Name)
+			logr.Infof("[main] Skipping the account %v because not configured to be backed up", account.Name)
 			continue
 		}
 
-		logr.Printf("[API] Found account: %v", account)
+		logr.Printf("[main] Found account: %v", account.Name)
 		repoNames = gitapi.GetRepoList(&account)
 		if len(repoNames) == 0 {
-			logr.Infof("[main] No repositories found on the account of %v", account.Name)
+			logr.Infof("[main] Couldn't find any repositories on the account %v", account.Name)
 			continue
 		}
-		logr.Info("[main] Found ", len(repoNames), " repositories on the user account of ", account.Name)
+		logr.Infof("[main] Found %v repositories on the user account of %v", len(repoNames), account.Name)
 		git.UpdateLocalCopies(repoNames, config, &account)
 	}
 
@@ -77,8 +102,8 @@ func main() {
 	})
 	BulkCron.Start()
 
-	logr.Info("The initial run/backup cycle has completed")
-	logr.Info("The cron jobs have been setup to run in the background ...")
+	logr.Info("Completed the initial backup cycle")
+	logr.Info("Cron jobs set up to run in the background ...")
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
