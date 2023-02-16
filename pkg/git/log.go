@@ -13,7 +13,7 @@ import (
 func AccessRepo(r *git.Repository, config *config.Config, account *config.Account) {
 	remote, err := r.Remote("origin")
 	if err != nil {
-		logr.Errorf("[GoGit] failed getting the remote: %v\n", err)
+		logr.Errorf("[Git] failed getting the remote: %v\n", err)
 		return
 	}
 	refList, err := remote.List(&git.ListOptions{
@@ -23,7 +23,7 @@ func AccessRepo(r *git.Repository, config *config.Config, account *config.Accoun
 		},
 	})
 	if err != nil {
-		logr.Errorf("[GoGit] failed listing the remote: %v\n", err)
+		logr.Errorf("[Git] failed listing the remote: %v\n", err)
 		return
 	}
 

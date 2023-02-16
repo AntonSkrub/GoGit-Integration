@@ -17,8 +17,8 @@ type Config struct {
 	OutputPath     string `yaml:"OutputPath"`
 	UpdateInterval string `yaml:"UpdateInterval"`
 
-	ListReferences bool `yaml:"ListReferences"`
-	LogLevel       int  `yaml:"LogLevel"`
+	ListReferences bool   `yaml:"ListReferences"`
+	LogLevel       uint32 `yaml:"LogLevel"`
 }
 
 type Account struct {
@@ -42,6 +42,7 @@ func GetConfig() *Config {
 
 func initConfig() error {
 	instance = &Config{}
+	logr.Info("[config] Creating default configuration ...")
 
 	if _, err := os.Stat(filepath.Join(configPath, "config.yml")); err != nil {
 		err = createConfig()
