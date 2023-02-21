@@ -54,7 +54,7 @@ func main() {
 	logPath := filepath.Join(logFilePath, logname)
 	logger := &lumberjack.Logger{
 		Filename:   logPath,
-		MaxSize:    1, // megabytes
+		MaxSize:    int(config.MaxLogLength), // megabytes
 		MaxBackups: 3,
 		MaxAge:     28, //days
 		Compress:   false,
@@ -140,6 +140,6 @@ func printConfigExplanation() {
 	fmt.Printf("  Is set in the cron syntax improved by spring, find more information \n  here https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions \n")
 	fmt.Printf("ListReferences: A boolean indicating whether the references (branches, tags) should be listed. \n")
 	fmt.Printf("LogLevel: An integrer representing the desired loglevel. \n")
-	fmt.Printf("MaxLogLength: The maximum size of the log file in KB\n")
+	fmt.Printf("MaxLogLength: The maximum size of the log file in MB\n")
 	fmt.Println("=====================================")
 }
