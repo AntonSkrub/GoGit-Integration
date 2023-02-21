@@ -19,6 +19,7 @@ type Config struct {
 
 	ListReferences bool   `yaml:"ListReferences"`
 	LogLevel       uint32 `yaml:"LogLevel"`
+	MaxLogLength   uint32 `yaml:"MaxLogLength"`
 }
 
 type Account struct {
@@ -81,6 +82,7 @@ func createConfig() error {
 
 		ListReferences: true,
 		LogLevel:       6,
+		MaxLogLength:   100,
 	}
 
 	data, err := yaml.Marshal(config)
