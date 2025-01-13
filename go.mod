@@ -11,6 +11,8 @@ require (
 )
 
 require (
+	github.com/acomagu/bufpipe v1.0.3 // indirect
+	github.com/cloudflare/circl v1.3.7 // indirect
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect
